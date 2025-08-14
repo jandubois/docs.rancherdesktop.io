@@ -8,105 +8,83 @@ import TabsConstants from '@site/core/TabsConstants';
   <link rel="canonical" href="https://docs.rancherdesktop.io/how-to-guides/mirror-private-registry"/>
 </head>
 
-Rancher Desktop can be configured to mirror private registries using either container runtime (`containerd` or `dockerd`) via provisioning scripts or updating the registry file used by `k3s`. Please see the `k3s` documentation for further information on [private registry configuration](https://docs.k3s.io/installation/private-registry).
+Rancher Desktop can be configured to use a private container registry by using a provisioning script to update the `registries.yaml` file used by k3s. This allows you to mirror a private registry, making it easier to access and manage your container images.
+
+For more information on private registry configuration, please refer to the [k3s documentation](https://docs.k3s.io/installation/private-registry).
 
 <Tabs groupId="os" defaultValue={TabsConstants.defaultOs}>
-<TabItem value="Linux">
+<TabItem value="macOS / Linux">
 
-Below is an example [provisioning script](../how-to-guides/provisioning-scripts.md#macOS--Linux) that can be used to mirror private registries.
+On macOS and Linux, you can use a provisioning script to configure your private registry.
 
-Check if you have the `override.yaml` file in the path below, otherwise you can create the file in the path with the suggested provisioning commands.
+1.  **Create an `override.yaml` File**
 
-Override File Path:
-`~/.local/share/rancher-desktop/lima/_config/override.yaml`
+    You will need to create an `override.yaml` file in the lima configuration directory. Please note that you must run Rancher Desktop at least once for this directory to be created.
 
-Example Script:
-```bash
-provision:
-  - mode: system
-    script: |
-      #!/bin/sh
-      set -eux
-      mkdir -p /etc/rancher/k3s
-      cat <<EOF >/etc/rancher/k3s/registries.yaml
-      mirrors:
-        "<my.private.registry>:5000":
-          endpoint:
-          - http://<my.private.registry>:5000
-      EOF
-```
+    -   **macOS:** `~/Library/Application Support/rancher-desktop/lima/_config/override.yaml`
+    -   **Linux:** `~/.local/share/rancher-desktop/lima/_config/override.yaml`
 
-After restarting the application, you can verify the script being applied using the `rdctl shell` command below:
+2.  **Add the Provisioning Script**
 
-```bash
-rdctl shell -- cat /etc/rancher/k3s/registries.yaml
-```
+    Add the following content to your `override.yaml` file, replacing `<my.private.registry>` with the URL of your private registry:
 
-</TabItem>
-<TabItem value="macOS">
+    ```yaml
+    provision:
+      - mode: system
+        script: |
+          #!/bin/sh
+          set -eux
+          mkdir -p /etc/rancher/k3s
+          cat <<EOF >/etc/rancher/k3s/registries.yaml
+          mirrors:
+            "<my.private.registry>:5000":
+              endpoint:
+              - http://<my.private.registry>:5000
+          EOF
+    ```
 
-Below is an example [provisioning script](../how-to-guides/provisioning-scripts.md#macOS--Linux) that can be used to mirror private registries.
+3.  **Restart and Verify**
 
-Check if you have the `override.yaml` file in the path below, otherwise you can create the file in the path with the suggested provisioning commands.
+    Restart Rancher Desktop for the changes to take effect. You can then verify that the configuration has been applied by running the following command:
 
-Override File Path:
-`~/Library/Application\ Support/rancher-desktop/lima/_config/override.yaml`
-
-Example Script:
-
-```bash
-provision:
-  - mode: system
-    script: |
-      #!/bin/sh
-      set -eux
-      mkdir -p /etc/rancher/k3s
-      cat <<EOF >/etc/rancher/k3s/registries.yaml
-      mirrors:
-        "<my.private.registry>:5000":
-          endpoint:
-          - http://<my.private.registry>:5000
-      EOF
-```
-
-After restarting the application, you can verify the script being applied using the `rdctl shell` command below:
-
-```bash
-rdctl shell -- cat /etc/rancher/k3s/registries.yaml
-```
+    ```bash
+    rdctl shell cat /etc/rancher/k3s/registries.yaml
+    ```
 
 </TabItem>
 <TabItem value="Windows">
 
-Ensure that you have initialized the application with a first run in order to create the `\provisioning\` directory. Once created, [provisioning scripts](../how-to-guides/provisioning-scripts.md#Windows) can be utilized to mirror private registries using a `.start` file.
+On Windows, you can use a `.start` provisioning script to configure your private registry.
 
-The file path and example provisioning script are provided below. After you have created the file with the appropriate configuration, restart the Rancher Desktop application for the provisioning script to take effect.
+1.  **Create a Provisioning Script**
 
-`.start` File Path:
-`$HOME\AppData\Local\rancher-desktop\provisioning\mirror-registry.start`
+    First, ensure that you have run Rancher Desktop at least once to initialize the necessary configurations.
 
-Example Script:
+    Next, create a new file named `mirror-registry.start` in the following directory:
 
-```shell
-#!/bin/sh
+    -   **Path:** `%LOCALAPPDATA%\rancher-desktop\provisioning\mirror-registry.start`
 
-set -eux
+    Add the following content to the file:
 
-mkdir -p /etc/rancher/k3s
+    ```sh
+    #!/bin/sh
+    set -eux
+    mkdir -p /etc/rancher/k3s
+    cat <<EOF >/etc/rancher/k3s/registries.yaml
+    mirrors:
+      "localhost:5000":
+        endpoint:
+          - http://localhost:5000
+    EOF
+    ```
 
-cat <<EOF >/etc/rancher/k3s/registries.yaml
-mirrors:
-  "localhost:5000":
-  endpoint:
-    - http://localhost:5000
-EOF
-```
+2.  **Restart and Verify**
 
-Verify using the `rdctl shell` command below that the script is applied:
+    Restart Rancher Desktop for the changes to take effect. You can then verify that the configuration has been applied by running the following command:
 
-```shell
-rdctl shell -- cat /etc/rancher/k3s/registries.yaml
-```
+    ```shell
+    rdctl shell cat /etc/rancher/k3s/registries.yaml
+    ```
 
 </TabItem>
 </Tabs>

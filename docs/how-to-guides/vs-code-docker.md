@@ -1,49 +1,78 @@
 ---
-title: Debugging a Container App with VS Code Docker extension
+title: Debugging with VS Code
 ---
 
 <head>
   <link rel="canonical" href="https://docs.rancherdesktop.io/how-to-guides/vs-code-docker"/>
 </head>
 
-The VS Code Docker extension makes it easy to build, manage, debug and deploy containerized applications in Visual Studio Code.
+The [VS Code Docker extension](https://code.visualstudio.com/docs/containers/overview) makes it easy to build, manage, and deploy containerized applications in Visual Studio Code. This guide will walk you through the process of debugging a sample application running in a container.
 
-### Steps to debug a sample application running within a container
+### Step 1: Set Up Your Environment
 
-1. Install and launch Rancher Desktop. Select `dockerd (moby)` as the Container Runtime from the `Kubernetes Settings` menu.
+1.  **Install and Launch Rancher Desktop:**
+    Ensure that `dockerd (moby)` is selected as the container runtime in the **Kubernetes Settings** panel.
 
-![](../img/vscodedocker/rd-main.png)
+    ![](../img/vscodedocker/rd-main.png)
 
-2. Install and launch Visual Studio Code or Visual Studio Code Insiders. This tutorial uses Visual Studio Code.
+2.  **Install and Launch Visual Studio Code:**
+    This guide uses the standard version of Visual Studio Code.
 
-![](../img/vscodedocker/vscode-main.png)
+    ![](../img/vscodedocker/vscode-main.png)
 
-[VS Code Docker]: https://code.visualstudio.com/docs/containers/overview
+3.  **Install the VS Code Docker Extension:**
+    Install the [Docker extension](https://marketplace.visualstudio.com/items?itemName=ms-azuretools.vscode-docker) from the VS Code Marketplace.
 
-3. Install the VS Code Docker extension from the marketplace. 
+    ![](../img/vscodedocker/vscode-docker-marketplace.png)
 
-![](../img/vscodedocker/vscode-docker-marketplace.png) 
+### Step 2: Prepare the Sample Application
 
-4. You can use the samples provided at this Github repository, https://github.com/bwateratmsft/samples. Clone this repository and open `expressapp` folder in your VS Code session. 
+1.  **Clone the Sample Repository:**
+    This guide uses a sample application from the following repository: https://github.com/bwateratmsft/samples.
 
-6. Open the command palette (Ctrl+Shift+P, F1, or Cmd+Shift+P) and run "Add Docker Files to Workspace". Since this is an Express app, Select `Node.js` as the Application Platform and `3000` (or any other available port) as the `port`. As it's a simple example, select `No` for the `Include optional Docker Compose files` prompt. This step adds a `Dockerfile` and `Launch Configuration` required to debug the application.
+    ```bash
+    git clone https://github.com/bwateratmsft/samples.git
+    ```
 
-![](../img/vscodedocker/vscode-docker-add-docker-files-1.png)
+2.  **Open the Project in VS Code:**
+    Open the `expressapp` folder from the cloned repository in VS Code.
 
-7. Insert a breakpoint in the code.
+### Step 3: Configure the Debugger
 
-![](../img/vscodedocker/vscode-docker-debug-breakpoint.png)
+1.  **Add Docker Files to Workspace:**
+    Open the command palette (`Ctrl+Shift+P`, `F1`, or `Cmd+Shift+P`) and run the **Add Docker Files to Workspace** command.
 
-8. In the Debug window at the top, switch the active debug configuration to "Docker Node.js Launch". Press `F5` to start the application container in `Debug` mode. You will see the sample application's landing page opening in your browser, and the code execution stopping at the breakpoint. From here, you can debug the application as if it's running on your host.
+    -   **Application Platform:** Select `Node.js`.
+    -   **Port:** Enter `3000` or another available port.
+    -   **Docker Compose Files:** Select `No`.
 
-![](../img/vscodedocker/vscode-docker-debug-configuration.png)
+    This will create a `Dockerfile` and a launch configuration for your project.
 
-![](../img/vscodedocker/vscode-docker-debug-breakpoint-hit.png)
+    ![](../img/vscodedocker/vscode-docker-add-docker-files-1.png)
 
-9. Sometimes, the application might not break at the set breakpoint on the first run as the debugging process may not have started. In this case, refresh the browser to trigger the execution again to hit the breakpoint. You can also get around this behavior by setting the property `inspectMode: 'break'` in `task.json` file to prevent the app from running until the debugger attaches.
+2.  **Set a Breakpoint:**
+    Open the `app.js` file and set a breakpoint by clicking in the gutter to the left of the line numbers.
 
-10. On some machines, the firewall settings might prevent the debugging process from establishing a connection between the host and the container processes. In this case, you can add a firewall rule to allow communication between the VM where the container is running and the host where you have the VS Code session running. On Windows, you can add a firewall rule by running the below command from a privileged powershell:
+    ![](../img/vscodedocker/vscode-docker-debug-breakpoint.png)
 
-```powershell
-New-NetFirewallRule -Action Allow -Description 'Allow communication from WSL containers' -Direction Inbound -Enabled True -InterfaceAlias 'vEthernet (WSL)' -Name 'WSL Inbound' -DisplayName 'WSL Inbound'
-```
+### Step 4: Start Debugging
+
+1.  **Select the Debug Configuration:**
+    In the **Run and Debug** view, select the **Docker: Launch Node.js** configuration from the dropdown menu.
+
+    ![](../img/vscodedocker/vscode-docker-debug-configuration.png)
+
+2.  **Start the Debugger:**
+    Press `F5` to start the debugger. This will build and run the container in debug mode. Your default web browser will open, and the application will pause at the breakpoint you set.
+
+    ![](../img/vscodedocker/vscode-docker-debug-breakpoint-hit.png)
+
+### Troubleshooting
+
+-   **Breakpoint Not Hit:** If the application does not stop at the breakpoint on the first run, it may be because the debugger has not yet attached. Refresh your web browser to trigger the execution again. You can also set `"inspectMode": "break"` in the `task.json` file to prevent the application from running until the debugger is attached.
+
+-   **Firewall Issues:** On some machines, firewall settings may prevent the debugger from connecting to the container. If you are on Windows, you can add a firewall rule to allow communication from the WSL VM by running the following command in a privileged PowerShell session:
+
+    ```powershell
+    New-NetFirewallRule -Action Allow -Description 'Allow communication from WSL containers' -Direction Inbound -Enabled True -InterfaceAlias 'vEthernet (WSL)' -Name 'WSL Inbound' -DisplayName 'WSL Inbound'
+    ```

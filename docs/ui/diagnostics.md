@@ -9,9 +9,13 @@ title: Diagnostics
 
 import TabsConstants from '@site/core/TabsConstants';
 
-The **Diagnostics** feature runs several checks in the background to detect common problems such as missing minimum requirements, misconfigurations, etc., in your environment to help you self-troubleshoot and fix Rancher Desktop application issues.
+The **Diagnostics** tab runs a series of checks to detect common problems in your environment, such as missing minimum requirements or misconfigurations. This feature is designed to help you troubleshoot and resolve issues with the Rancher Desktop application.
 
-**Note:** Rancher Desktop *doesn't* send the diagnostics data to any remote server for processing or storing.
+The diagnostics checks are run automatically every time the application launches. If any problems are identified, a badge will be displayed next to the **Diagnostics** menu item, indicating the number of failed checks.
+
+:::note
+Rancher Desktop does not send any diagnostics data to a remote server for processing or storage. All diagnostics are performed locally on your machine.
+:::
 
 <Tabs groupId="os" defaultValue={TabsConstants.defaultOs}>
 <TabItem value="Windows">
@@ -31,6 +35,9 @@ The **Diagnostics** feature runs several checks in the background to detect comm
 </TabItem>
 </Tabs>
 
-The diagnostics checks are run every time when the application launches. If there are any problems identified then the count of failed checks is shown next to the *Diagnostics* menu text in the left navigation bar, indicating that something needs your attention. The *Diagnostics* tab displays the results of the diagnostics tests, highlighting areas that need attention, and guides you to resolve problems.
+From this tab, you can view the results of the diagnostics tests and see which checks have passed or failed. For failed checks, Rancher Desktop will provide guidance on how to resolve the issue.
 
-On this tab you can mute/unmute individual checks if you have a non-standard setup and know that these checks don't apply to your situation. You can also rerun the diagnostics anytime to verify that changes you have made to your environment have rectified the problem.
+You can also perform the following actions:
+
+-   **Mute/Unmute:** If you have a non-standard setup and know that a particular check is not relevant to your environment, you can mute it to prevent it from running.
+-   **Rerun:** You can rerun the diagnostics at any time to verify that any changes you have made to your environment have resolved the issue.

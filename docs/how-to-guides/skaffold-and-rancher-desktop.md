@@ -6,56 +6,76 @@ title: Skaffold and Rancher Desktop
   <link rel="canonical" href="https://docs.rancherdesktop.io/how-to-guides/skaffold-and-rancher-desktop"/>
 </head>
 
-Skaffold is a command line tool that facilitates continuous development for Kubernetes-native applications. Skaffold handles the workflow for building, pushing, and deploying your application, and it provides building blocks for creating CI/CD pipelines. This enables you to focus on iterating on your application locally while Skaffold continuously deploys to your local or remote Kubernetes cluster. To learn more about Skaffold, refer to the project docs [here](https://skaffold.dev/docs/).
+[Skaffold](https://skaffold.dev/docs/) is a command-line tool that facilitates continuous development for Kubernetes applications. It handles the workflow for building, pushing, and deploying your application, allowing you to focus on iterating on your code while Skaffold continuously deploys to your cluster.
 
-In order to demonstrate the steps to set up Skaffold with Rancher Desktop, a sample nodejs app example is provided within the Rancher Desktop docs repository [here](https://github.com/rancher-sandbox/docs.rancherdesktop.io/tree/main/assets/express-sample). 
+This guide will walk you through setting up Skaffold with Rancher Desktop using a [sample Node.js application](https://github.com/rancher-sandbox/docs.rancherdesktop.io/tree/main/assets/express-sample).
 
->**Important: Skaffold only works with `dockerd` (Moby).** Therefore, make sure to select your runtime as `dockerd` from the **Kubernetes Settings** panel in the Rancher Desktop UI. 
+### Prerequisites
 
-1. Visit https://skaffold.dev/docs/install/ to install Skaffold.
+-   **Container Runtime:** Skaffold works with the `dockerd (moby)` container runtime. Please ensure that `dockerd` is selected in the **Kubernetes Settings** panel of the Rancher Desktop UI.
 
-1. Clone the [Rancher Desktop docs repository](https://github.com/rancher-sandbox/docs.rancherdesktop.io.git) and navigate to the `express-sample` in a terminal as follows: 
+### Step 1: Install Skaffold
+
+Install Skaffold by following the instructions on the [official installation page](https://skaffold.dev/docs/install/).
+
+### Step 2: Prepare the Sample Application
+
+Clone the Rancher Desktop documentation repository and navigate to the sample application directory:
+
+```bash
+git clone https://github.com/rancher-sandbox/docs.rancherdesktop.io.git
+cd docs.rancherdesktop.io/assets/express-sample
+```
+
+### Step 3: Initialize the Project
+
+Run the `skaffold init` command to generate a `skaffold.yaml` configuration file for your project.
+
+```bash
+skaffold init
+```
+
+Skaffold will scan your project for build configuration files (e.g., `Dockerfile`, `package.json`) and prompt you to confirm the configuration. For this example, you can accept the defaults and allow Skaffold to write the `skaffold.yaml` file.
+
+### Step 4: Configure the Image Repository
+
+Before you can deploy your application, you need to decide where Skaffold will push your container image. You have three main options:
+
+<Tabs>
+<TabItem value="docker-hub" label="Docker Hub" default>
+
+If you have a Docker Hub account, you can configure Skaffold to push your image to your personal repository.
+
+1.  Log in to Docker Hub:
+    ```bash
+    docker login
     ```
-    cd docs.rancherdesktop.io/assets/express-sample
-    ```
 
-1. Run `skaffold init`.
+2.  In the `skaffold.yaml` and `manifests.yaml` files, replace `matamagu/express-sample` with `<YOUR-DOCKER-HUB-USERNAME>/express-sample`.
 
-    Per the [Skaffold docs](https://skaffold.dev/docs/pipeline-stages/init/#build-config-initialization),`skaffold init` walks through your project directory and looks for any build configuration files such as `Dockerfile`, `build.gradle/pom.xml`, `package.json`, `requirements.txt`, or `go.mod`. 
-    
-    We will select `Dockerfile` and `package.json` in our example. This will generate the initial configuration file that you can modify as needed. When prompted, select `yes` to write your config to `skaffold.yaml`.
+</TabItem>
+<TabItem value="local-registry" label="Local Registry">
 
-1. In your editor, review your `app.js` and `manifests.yaml` files. Note that in `manifests.yaml`, you will have a deployment config as well as a service config. It is only necessary to have 1 `replica` for testing purposes.
+You can run a local container registry to store your images.
 
-1. Back in your terminal, you'll notice that you will have two options: `skaffold run` that lets you build and deploy, and `skaffold dev` that allows you to enter development mode with auto-redeploy. We will use `skaffold dev` in this example.
-
-   You will need to have push access to the image repository. You can either use your docker login, set up a local registry, or build locally without pushing to an image registry:
-
-  <Tabs>
-    <TabItem value="docker-hub" label="Docker Hub" default>
-
-    Before running `skaffold dev`, use your docker login if you have a [Docker Hub](https://hub.docker.com/) account. Then, in the files `skaffold.yaml` and `manifests.yaml` replace `matamagu/express-sample` for `YOUR_DOCKER_HUB_USERNAME/express-sample` as `skaffold dev` will push the built image to DockerHub.
-   
-    </TabItem>  
-    <TabItem value="local-registry" label="Local Registry">
-   
-    You can set up a local registry by first running this command:<br/><br/>  
-
-    ```
+1.  Start the local registry:
+    ```bash
     docker run -d -p 5000:5000 --restart=always --name registry registry:2
     ```
-  
-    Then:
-    ```
+
+2.  When you run `skaffold dev`, use the `--default-repo` flag to point to your local registry:
+    ```bash
     skaffold dev --default-repo=localhost:5000
     ```
-    </TabItem>
-    <TabItem value="local-build" label="Local Build">
 
-    You can build locally without pushing to the image registry by setting your workloads `imagePullPolicy` to `IfNotPresent` in your `manifests.yaml` file. You will also need to update your `skaffold.yaml` with the following variables in order to implement this change as noted below:
-    
-    <details>
-    <summary>Example YAML</summary>
+</TabItem>
+<TabItem value="local-build" label="Local Build">
+
+You can build your image locally without pushing it to a registry.
+
+1.  In your `manifests.yaml` file, set the `imagePullPolicy` to `IfNotPresent`.
+
+2.  Update your `skaffold.yaml` file to disable pushing the image:
 
     ```yaml
     apiVersion: skaffold/v2beta29
@@ -68,12 +88,18 @@ In order to demonstrate the steps to set up Skaffold with Rancher Desktop, a sam
         useDockerCLI: true
     ```
 
-    </details>
+</TabItem>
+</Tabs>
 
-    </TabItem>
-  </Tabs>
+### Step 5: Start the Development Workflow
 
-  As you go through your development, Skaffold will detect any changes and will automatically go through the build and deployment process again. You will be able to see any changes reflected in the cluster.
+Now you can start the Skaffold development workflow using the `skaffold dev` command. This will build and deploy your application and automatically redeploy it whenever you make changes to your code.
 
-1. Point your web browser to `localhost:3000`, and you will see the `express-sample` screen.
+```bash
+skaffold dev
+```
+
+### Step 6: Access Your Application
+
+Once the application is deployed, you can access it by navigating to `http://localhost:3000` in your web browser.
 

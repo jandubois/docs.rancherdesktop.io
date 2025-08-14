@@ -9,7 +9,6 @@ title: Containers
 
 import TabsConstants from '@site/core/TabsConstants';
 
-<!--- Insert S3 Image Here Once Uploaded -->
 <Tabs groupId="os" defaultValue={TabsConstants.defaultOs}>
 <TabItem value="Windows">
 
@@ -28,42 +27,25 @@ import TabsConstants from '@site/core/TabsConstants';
 </TabItem>
 </Tabs>
 
-:::caution warning
+The **Containers** tab allows you to view and manage your running containers. The main view provides a list of all your containers, along with the following key information:
 
-This is an **experimental** feature.
+-   **State:** The current state of the container (e.g., "Running," "Stopped").
+-   **Name:** The name of the container.
+-   **Image:** The image used to create the container.
+-   **Port(s):** Any ports that are exposed by the container. You can click on a port to open it in your web browser.
+-   **Started:** The time when the container was started.
 
-:::
+You can sort the list by any of these fields and use the filter box to search for specific containers. You can also select multiple containers to perform bulk actions.
 
-The **Containers** tab offers quick access to manage containers and view key information such as:
-
- - `State`:
-  The container state(s) will be listed in this field, and by default running containers are presented first.
-- `Name`:
-  The container name(s) will be listed in this field and can be sorted.
-- `Image`:
-  All image names will be listed in this field and can be sorted.
-- `Port(s)`:
-  Ports are listed in this field and can be clicked for quick access to a localhost port.
-- `Started`:
-  Container start-up times will be listed in this field and can be sorted.
-
-The listed information can be sorted in ascending or descending order. Containers can also be filtered with input text in the `Filter` field located at the top right. Bulk selection is available for managing multiple instances at once.
-
-Additionally, when using the `containerd` engine, you can use the `Namespace` dropdown selector to help with filtering containers. The dropdown will be located next to the `Filter` field and shows namespaces in your cluster when clicked.
+When using the `containerd` runtime, a **Namespace** dropdown will be available, allowing you to filter containers by namespace.
 
 ### Container Management
 
-The buttons located at the top of the page will be highlighted when a container is selected and depend on the container's state.
+The **Containers** tab provides several options for managing your containers:
 
-Bulk selection and actions can also be performed on instances with the same state.
+-   **Stop:** Stops a running container.
+-   **Start:** Starts a stopped container.
+-   **Delete:** Deletes a container from your system.
+-   **⋮:** The kebab menu provides additional options for each container, such as starting, stopping, and deleting.
 
-The following actions are available:
-
-- `Stop`:
-  You can terminate container instances using the `Stop` button.
-- `Start`:
-  You can initiate container instances using the `Start` button.
-- `Delete`:
-  You can delete container instances from your system entirely by using the `Delete` button.
-- `⋮`:
-  This button is located on the right side of the tab view. You can start, stop, or delete container instances depending on their  state using the `⋮` button.
+The management buttons at the top of the view will be enabled or disabled depending on the state of the selected container(s).

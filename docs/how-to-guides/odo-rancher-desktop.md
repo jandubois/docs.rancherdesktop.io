@@ -2,633 +2,623 @@
 title: ODO and Rancher Desktop
 ---
 
-`odo` is a fast, iterative and straightforward CLI tool for developers who write, build, and deploy applications on Kubernetes. The `odo` CLI abstracts away complex Kubernetes concepts and allows developers to focus on iterating code. The helper tool can detect changes to local code and deploy them to a container orchestrated cluster automatically, giving instant feedback to validate changes in real-time. Please refer to the [`odo` project documentation](https://odo.dev/docs/introduction) to learn more.
+[odo](https://odo.dev/docs/introduction) is a CLI tool for developers that simplifies the process of writing, building, and deploying applications on Kubernetes. It abstracts away complex Kubernetes concepts, allowing you to focus on your code. This guide will walk you through using `odo` with Rancher Desktop to develop and deploy a sample application.
 
 ## Prerequisites
 
-For this guide you will use the [express-sample node.js application](https://github.com/rancher-sandbox/docs.rancherdesktop.io/tree/main/assets/express-sample) in the [Rancher Desktop documentation](https://github.com/rancher-sandbox/docs.rancherdesktop.io) repository as a way to demonstrate the use of `odo` and Rancher Desktop.
+Before you begin, please ensure you have the following set up:
 
-:::note
-`odo` works with the `dockerd (moby)` runtime, be sure to have it selected from the preferences dialog location *Preferences* > *Container Engine* > *Allowed Images*.
-:::
+1.  **Rancher Desktop:**
+    -   Ensure that Kubernetes is enabled.
+    -   Set the container runtime to **dockerd (moby)** by navigating to **Preferences > Container Engine**.
 
-Please ensure that Kubernetes is enabled for your application. Additionally, in order to use `odo deploy`, you will need to be able to build and push an image to a Docker container registry. Log in using your Docker credentials as noted below:
+2.  **odo:**
+    -   Install `odo` by following the instructions on the [official installation page](https://odo.dev/docs/overview/installation). This guide will focus on using the CLI tool.
 
-```shell
-$ docker login docker.io
-Username:
-Password:
-Login Succeeded!
-```
+3.  **Docker Hub Account:**
+    -   To deploy your application, you will need a container registry. This guide uses Docker Hub. Log in to your Docker Hub account from the command line:
 
-### Installation
+    ```shell
+    docker login docker.io
+    ```
 
-Install `odo` by visiting https://odo.dev/docs/overview/installation and perform the appropriate install for your platform. The tool can be used both as a [CLI tool](https://odo.dev/docs/overview/installation#cli-installation) or an [IDE plugin](https://odo.dev/docs/overview/installation#ide-installation), as well as a few [alternative install methods](https://odo.dev/docs/overview/installation#alternative-installation-methods) depending on your preference. This guide will focus on using the tool through the CLI.
+4.  **Sample Application:**
+    -   This guide uses a [sample Node.js application](https://github.com/rancher-sandbox/docs.rancherdesktop.io/tree/main/assets/express-sample). Clone the repository to your local machine:
 
-## Steps: `odo init`
+    ```shell
+    git clone https://github.com/rancher-sandbox/docs.rancherdesktop.io.git
+    ```
 
-This command will initialize the application by creating a `devfile.yaml` for deployments.
+## Step 1: Initialize the Project
 
-1. Clone the [Rancher Desktop documentation](https://github.com/rancher-sandbox/docs.rancherdesktop.io) repository and change your directory to the [sample-express](https://github.com/rancher-sandbox/docs.rancherdesktop.io/tree/main/assets/express-sample) application.
+The `odo init` command initializes your project by creating a `devfile.yaml`, which contains instructions for how to build and run your application.
 
-```shell
-git clone https://github.com/rancher-sandbox/docs.rancherdesktop.io.git
-cd docs.rancherdesktop.io/assets/express-sample
-```
+1.  **Navigate to the Project Directory**
 
-2. Before initializing, you must connect `odo` to your cluster via a namespace, which can be created with the command [`odo create namespace <name>`](https://odo.dev/docs/command-reference/create-namespace):
+    ```shell
+    cd docs.rancherdesktop.io/assets/express-sample
+    ```
 
-```shell
-odo create namespace odo-dev
-```
+2.  **Create a Namespace**
 
-<details>
-<summary>Sample Output</summary>
+    Before you can initialize the project, you need to create a namespace for it in your Kubernetes cluster:
 
-```shell
-$ odo create namespace odo-dev
- ✓  Creating the namespace "odo-dev" [5ms]
- ✓  Namespace "odo-dev" is ready for use
- ✓  New namespace created and now using namespace: odo-dev
-```
+    ```shell
+    odo create namespace odo-dev
+    ```
 
-</details>
+    <details>
+    <summary>Sample Output</summary>
 
-3. The command [`odo init`](https://odo.dev/docs/command-reference/init) will auto-detect your project framework and choose the appropriate `devfile.yaml` to be used for deployment of your application. The command will allow you to confirm the Devfile (Y/n), select a container to change configuration (choose none for this example), and enter a component name (e.g. my-nodejs-app).
+    ```shell
+    $ odo create namespace odo-dev
+     ✓  Creating the namespace "odo-dev" [5ms]
+     ✓  Namespace "odo-dev" is ready for use
+     ✓  New namespace created and now using namespace: odo-dev
+    ```
 
-  Alternatively, the following command with the additional flags (e.g. `--devfile-version 2.2.0`) can be used to initialize `odo` and allow your application to be deployed:
+    </details>
 
-```shell
-odo init --name my-nodejs-app --devfile nodejs --devfile-registry DefaultDevfileRegistry --devfile-version 2.2.0
-```
+3.  **Initialize the Project**
 
-<details>
-<summary>Sample Output</summary>
+    Run the `odo init` command in your project directory. `odo` will automatically detect your project's language and framework and suggest a suitable Devfile.
 
-```shell
-  __
- /  \__     Initializing a new component
- \__/  \    
- /  \__/    odo version: v3.13.0
- \__/
+    ```shell
+    odo init
+    ```
 
- ✓  Downloading devfile "nodejs:2.2.0" from registry "DefaultDevfileRegistry" [1s]
+    `odo` will guide you through a series of questions:
 
-Your new component 'my-nodejs-app' is ready in the current directory.
-To start editing your component, use 'odo dev' and open this folder in your favorite IDE.
-Changes will be directly reflected on the cluster.
-```
+    -   It will detect your project type (e.g., Node.js) and ask for confirmation.
+    -   It will ask you to select a container for configuration changes (you can select "NONE" for this example).
+    -   It will prompt you to enter a component name (e.g., "my-nodejs-app").
 
-</details>
+    <details>
+    <summary>Sample Interactive Session</summary>
 
-```shell
-odo init
-```
+    ```shell
+    $ odo init
+      __
+     /  \__     Initializing a new component
+     \__/  \    Files: Source code detected, a Devfile will be determined based upon source code autodetection
+     /  \__/    odo version: v3.13.0
+     \__/
 
-<details>
-<summary>Sample Output</summary>
+    Interactive mode enabled, please answer the following questions:
+     ✓  Determining a Devfile for the current directory [910ms]
+    Based on the files in the current directory odo detected
+    Language: JavaScript
+    Project type: Node.js
+    Application ports: 3000
+    The devfile "nodejs:2.1.1" from the registry "DefaultDevfileRegistry" will be downloaded.
+    ? Is this correct? Yes
+     ✓  Downloading devfile "nodejs:2.1.1" from registry "DefaultDevfileRegistry" [933ms]
 
-```shell
-$ odo init
-  __
- /  \__     Initializing a new component
- \__/  \    Files: Source code detected, a Devfile will be determined based upon source code autodetection
- /  \__/    odo version: v3.13.0
- \__/
+    ↪ Container Configuration "runtime":
+      OPEN PORTS:
+        - 3000
+        - 5858
+      ENVIRONMENT VARIABLES:
+        - DEBUG_PORT = 5858
 
-Interactive mode enabled, please answer the following questions:
- ✓  Determining a Devfile for the current directory [910ms]
-Based on the files in the current directory odo detected
-Language: JavaScript
-Project type: Node.js
-Application ports: 3000
-The devfile "nodejs:2.1.1" from the registry "DefaultDevfileRegistry" will be downloaded.
-? Is this correct? Yes
- ✓  Downloading devfile "nodejs:2.1.1" from registry "DefaultDevfileRegistry" [933ms]
+    ? Select container for which you want to change configuration? NONE - configuration is correct
+    ? Enter component name: my-nodejs-app
 
-↪ Container Configuration "runtime":
-  OPEN PORTS:
-    - 3000
-    - 5858
-  ENVIRONMENT VARIABLES:
-    - DEBUG_PORT = 5858
+    You can automate this command by executing:
+       odo init --name my-nodejs-app --devfile nodejs --devfile-registry DefaultDevfileRegistry --devfile-version 2.1.1
 
-? Select container for which you want to change configuration? NONE - configuration is correct
-? Enter component name: my-nodejs-app
+    Your new component 'my-nodejs-app' is ready in the current directory.
+    To start editing your component, use 'odo dev' and open this folder in your favorite IDE.
+    Changes will be directly reflected on the cluster.
+    ```
 
-You can automate this command by executing:
-   odo init --name my-nodejs-app --devfile nodejs --devfile-registry DefaultDevfileRegistry --devfile-version 2.1.1
+    </details>
 
-Your new component 'my-nodejs-app' is ready in the current directory.
-To start editing your component, use 'odo dev' and open this folder in your favorite IDE.
-Changes will be directly reflected on the cluster.
-```
+    Alternatively, you can run `odo init` with flags to bypass the interactive prompts:
 
-</details>
+    ```shell
+    odo init --name my-nodejs-app --devfile nodejs --devfile-registry DefaultDevfileRegistry --devfile-version 2.2.0
+    ```
 
 ## Steps: `odo dev`
 
-Now, you can run the command [`odo dev`](https://odo.dev/docs/command-reference/dev) to continuously deploy applications as you make changes to your code through your preferred IDE.
+## Step 2: Develop Your Application with `odo dev`
 
-:::caution
-You may run into an `ErrImagePull` error as the image may not be covered by Rancher Desktop's allowed images list. To resolve the error, please add the necessary image in *Preferences* > *Container Engine* > *Allowed Images* and hit apply to update allowed images immediately.
-:::
+The `odo dev` command provides a continuous development environment that automatically syncs your local code changes to the container on your cluster.
 
-```shell
-odo dev
-```
+1.  **Start the Development Session**
 
-<details>
-<summary>Sample Output</summary>
+    Run the following command to start the `odo dev` session:
 
-```shell
-$ odo dev
-  __
- /  \__     Developing using the "my-nodejs-app" Devfile
- \__/  \    Namespace: odo-dev
- /  \__/    odo version: v3.13.0
- \__/
+    ```shell
+    odo dev
+    ```
 
-↪ Running on the cluster in Dev mode
-I0728 13:50:53.115137   92567 starterserver.go:123] API Server started at localhost:20000/api/v1
- •  Waiting for Kubernetes resources  ...
- ⚠  Pod is Pending
- ✓  Pod is Running
- ✓  Syncing files into the container [306ms]
- ✓  Building your application in container (command: install) [3s]
- •  Executing the application (command: run)  ...
- ✓  Waiting for the application to be ready [1s]
- -  Forwarding from 127.0.0.1:20001 -> 3000
+    `odo` will build your application, deploy it to the cluster, and forward a local port to the application.
+
+    > **Troubleshooting:** If you encounter an `ErrImagePull` error, it may be because the image is not in Rancher Desktop's allowed images list. You can add the image in **Preferences > Container Engine > Allowed Images**.
+
+    <details>
+    <summary>Sample Output</summary>
+
+    ```shell
+    $ odo dev
+      __
+     /  \__     Developing using the "my-nodejs-app" Devfile
+     \__/  \    Namespace: odo-dev
+     /  \__/    odo version: v3.13.0
+     \__/
+
+    ↪ Running on the cluster in Dev mode
+    I0728 13:50:53.115137   92567 starterserver.go:123] API Server started at localhost:20000/api/v1
+     •  Waiting for Kubernetes resources  ...
+     ⚠  Pod is Pending
+     ✓  Pod is Running
+     ✓  Syncing files into the container [306ms]
+     ✓  Building your application in container (command: install) [3s]
+     •  Executing the application (command: run)  ...
+     ✓  Waiting for the application to be ready [1s]
+     -  Forwarding from 127.0.0.1:20001 -> 3000
 
 
-↪ Dev mode
- Status:
- Watching for changes in the current directory /Users/docs.rancherdesktop.io/assets/express-sample
+    ↪ Dev mode
+     Status:
+     Watching for changes in the current directory /Users/docs.rancherdesktop.io/assets/express-sample
 
- Keyboard Commands:
-[Ctrl+c] - Exit and delete resources from the cluster
-     [p] - Manually apply local changes to the application on the cluster
-```
+     Keyboard Commands:
+    [Ctrl+c] - Exit and delete resources from the cluster
+         [p] - Manually apply local changes to the application on the cluster
+    ```
 
-</details>
+    </details>
 
-The `express-sample` application can now be accessed by the local port (127.0.0.1:20001). As an example, you can make a text change to the `index.jade` file in the *views* folder to see a real-time update to the application.
+2.  **Access Your Application**
 
-## Steps: `odo deploy`
+    You can now access the sample application at the forwarded local port (e.g., `127.0.0.1:20001`). Try making a change to the `index.jade` file in the `views` directory and watch the application update in real time.
 
-This command will deploy your application to your cluster with instructions from your `devfile.yaml`.
+## Step 3: Deploy Your Application with `odo deploy`
 
-1. Be sure to be logged into the Docker container registry to push the application to, and set your container image build arguments to be the same as your container architecture using the [`ODO_IMAGE_BUILD_ARGS`](https://odo.dev/docs/overview/configure/#environment-variables-controlling-odo-behavior:~:text=ODO_IMAGE_BUILD_ARGS) environment variable:
+The `odo deploy` command builds your application as a container image, pushes it to a registry, and deploys it to your cluster.
 
-<Tabs>
-<TabItem value="AMD64">
+1.  **Set Build Arguments**
 
-```shell
-export ODO_IMAGE_BUILD_ARGS="--platform=linux/amd64"
-```
+    Set the `ODO_IMAGE_BUILD_ARGS` environment variable to match your container architecture:
 
-</TabItem>
-<TabItem value="ARM">
+    <Tabs>
+    <TabItem value="AMD64">
 
-```shell
-export ODO_IMAGE_BUILD_ARGS="--platform=linux/arm64"
-```
+    ```shell
+    export ODO_IMAGE_BUILD_ARGS="--platform=linux/amd64"
+    ```
 
-</TabItem>
-</Tabs>
+    </TabItem>
+    <TabItem value="ARM">
 
-2. Update the `Dockerfile` in the `express-sample` directory to containerize the application with correct variables in order to build and push to a registry:
+    ```shell
+    export ODO_IMAGE_BUILD_ARGS="--platform=linux/arm64"
+    ```
 
-<details>
-<summary>Sample Dockerfile</summary>
+    </TabItem>
+    </Tabs>
 
-```shell
-# Install the app dependencies in a full SLE Node image
-FROM registry.suse.com/bci/nodejs:16
+2.  **Update the `Dockerfile`**
 
-# Copy package.json and package-lock.json
-COPY package*.json ./
+    Replace the content of the `Dockerfile` in the `express-sample` directory with the following:
 
-# Install app dependencies
-RUN npm install --production
+    ```dockerfile
+    # Install the app dependencies in a full SLE Node image
+    FROM registry.suse.com/bci/nodejs:16
 
-# Install app dependencies
-COPY . /opt/app-root/src
+    # Copy package.json and package-lock.json
+    COPY package*.json ./
 
-ENV NODE_ENV production
-ENV PORT 3000
+    # Install app dependencies
+    RUN npm install --production
 
-CMD ["npm", "start"]
-```
+    # Install app dependencies
+    COPY . /opt/app-root/src
 
-</details>
+    ENV NODE_ENV production
+    ENV PORT 3000
 
-3. Modify the `devfile.yaml` to the example noted below for your container cluster.
+    CMD ["npm", "start"]
+    ```
 
-* Update the variables to access your container registry:
+3.  **Update the `devfile.yaml`**
 
-```yaml
-# Add the following variables code anywhere in devfile.yaml
-# This MUST be a container registry you are able to access
-variables:
-  CONTAINER_IMAGE: docker.io/<INSERTUSERNAME>/nodejs-odo-example
-  RESOURCE_NAME: my-nodejs-app
-  CONTAINER_PORT: "3000"
-  DOMAIN_NAME: nodejs.example.com
-```
+    To deploy the application, you will need to make several changes to the `devfile.yaml`.
 
-* Update the Devfile schema to `2.2.0` as `odo deploy` makes use of this version. Additionally, there is a command to initialize `odo` with the correct `schemaVersion: 2.2.0` noted above in the installation:
+    -   **Update the Schema Version:**
+        The `odo deploy` command requires schema version `2.2.0`. Change the `schemaVersion` field to `2.2.0`.
 
-```yaml
-# Deploy "kind" ID's use schema 2.2.0+
-schemaVersion: 2.2.0
-```
+        ```yaml
+        schemaVersion: 2.2.0
+        ```
 
-* The commands seen below are used for deployment activities:
+    -   **Add Variables:**
+        Add the following variables to your `devfile.yaml`. These will be used to configure the deployment.
 
-<details>
-<summary>Deployment Commands</summary>
+        ```yaml
+        variables:
+          CONTAINER_IMAGE: docker.io/<YOUR-DOCKER-USERNAME>/nodejs-odo-example
+          RESOURCE_NAME: my-nodejs-app
+          CONTAINER_PORT: "3000"
+          DOMAIN_NAME: nodejs.example.com
+        ```
 
-```yaml
-# This is the main "composite" command that will run all below commands
-commands:
-- id: deploy
-  composite:
-    commands:
-    - build-image
-    - k8s-deployment
-    - k8s-service
-    - k8s-url
-    group:
-      isDefault: true
-      kind: deploy
+    -   **Add Deployment Commands:**
+        Add the following commands to the `commands` section of your `devfile.yaml`. These commands define the deployment process.
 
-# Below are the commands and their respective components that they are "linked" to deploy
-- id: build-image
-  apply:
-    component: outerloop-build
-- id: k8s-deployment
-  apply:
-    component: outerloop-deployment
-- id: k8s-service
-  apply:
-    component: outerloop-service
-- id: k8s-url
-  apply:
-    component: outerloop-url
-```
+        <details>
+        <summary>Click to see deployment commands</summary>
 
-</details>
+        ```yaml
+        - id: deploy
+          composite:
+            commands:
+            - build-image
+            - k8s-deployment
+            - k8s-service
+            - k8s-url
+            group:
+              isDefault: true
+              kind: deploy
+        - id: build-image
+          apply:
+            component: outerloop-build
+        - id: k8s-deployment
+          apply:
+            component: outerloop-deployment
+        - id: k8s-service
+          apply:
+            component: outerloop-service
+        - id: k8s-url
+          apply:
+            component: outerloop-url
+        ```
 
-* The commands seen below are used for adding the Docker image location, K8s deployment and services to `components`:
+        </details>
 
-<details>
-<summary>Component Commands</summary>
+    -   **Add Deployment Components:**
+        Add the following components to the `components` section of your `devfile.yaml`. These components define the resources that will be created on the cluster.
 
-```yaml
-# This will build the container image before deployment
-- name: outerloop-build
-  image:
-    dockerfile:
-      buildContext: ${PROJECT_SOURCE}
-      rootRequired: false
-      uri: ./Dockerfile
-    imageName: "{{CONTAINER_IMAGE}}"
-# This will create a Deployment in order to run your container image across
-# the cluster.
-- name: outerloop-deployment
-  kubernetes:
-    inlined: |
-      kind: Deployment
-      apiVersion: apps/v1
-      metadata:
-        name: {{RESOURCE_NAME}}
-      spec:
-        replicas: 1
-        selector:
-          matchLabels:
-            app: {{RESOURCE_NAME}}
-        template:
-          metadata:
-            labels:
-              app: {{RESOURCE_NAME}}
-          spec:
-            containers:
-              - name: {{RESOURCE_NAME}}
-                image: {{CONTAINER_IMAGE}}
+        <details>
+        <summary>Click to see deployment components</summary>
+
+        ```yaml
+        - name: outerloop-build
+          image:
+            dockerfile:
+              buildContext: ${PROJECT_SOURCE}
+              rootRequired: false
+              uri: ./Dockerfile
+            imageName: "{{CONTAINER_IMAGE}}"
+        - name: outerloop-deployment
+          kubernetes:
+            inlined: |
+              kind: Deployment
+              apiVersion: apps/v1
+              metadata:
+                name: {{RESOURCE_NAME}}
+              spec:
+                replicas: 1
+                selector:
+                  matchLabels:
+                    app: {{RESOURCE_NAME}}
+                template:
+                  metadata:
+                    labels:
+                      app: {{RESOURCE_NAME}}
+                  spec:
+                    containers:
+                      - name: {{RESOURCE_NAME}}
+                        image: {{CONTAINER_IMAGE}}
+                        ports:
+                          - name: http
+                            containerPort: {{CONTAINER_PORT}}
+                            protocol: TCP
+                        resources:
+                          limits:
+                            memory: "1024Mi"
+                            cpu: "500m"
+        - name: outerloop-service
+          kubernetes:
+            inlined: |
+              apiVersion: v1
+              kind: Service
+              metadata:
+                name: {{RESOURCE_NAME}}
+              spec:
                 ports:
-                  - name: http
-                    containerPort: {{CONTAINER_PORT}}
-                    protocol: TCP
-                resources:
-                  limits:
-                    memory: "1024Mi"
-                    cpu: "500m"
+                - name: "{{CONTAINER_PORT}}"
+                  port: {{CONTAINER_PORT}}
+                  protocol: TCP
+                  targetPort: {{CONTAINER_PORT}}
+                selector:
+                  app: {{RESOURCE_NAME}}
+                type: NodePort
+        - name: outerloop-url
+          kubernetes:
+            inlined: |
+              apiVersion: networking.k8s.io/v1
+              kind: Ingress
+              metadata:
+                name: {{RESOURCE_NAME}}
+              spec:
+                rules:
+                  - host: "{{DOMAIN_NAME}}"
+                    http:
+                      paths:
+                        - path: "/"
+                          pathType: Prefix
+                          backend:
+                            service:
+                              name: {{RESOURCE_NAME}}
+                              port:
+                                number: {{CONTAINER_PORT}}
+        ```
 
-# This will create a Service so your Deployment is accessible.
-# Depending on your cluster, you may modify this code so it's a
-# NodePort, ClusterIP or a LoadBalancer service.
-- name: outerloop-service
-  kubernetes:
-    inlined: |
-      apiVersion: v1
-      kind: Service
-      metadata:
-        name: {{RESOURCE_NAME}}
-      spec:
-        ports:
-        - name: "{{CONTAINER_PORT}}"
-          port: {{CONTAINER_PORT}}
-          protocol: TCP
-          targetPort: {{CONTAINER_PORT}}
-        selector:
-          app: {{RESOURCE_NAME}}
-        type: NodePort
-```
+        </details>
 
-</details>
+    -   **Final `devfile.yaml`**
+        After making all the changes, your `devfile.yaml` should look similar to the one below.
 
-* The last addition to our Devfile is adding the Kubernetes ingress component as noted below:
+        <details>
+        <summary>Click to see the final `devfile.yaml`</summary>
 
-<details>
-<summary>Ingress Commands</summary>
+        ```yaml
+        commands:
+        - exec:
+            commandLine: npm install
+            component: runtime
+            group:
+              isDefault: true
+              kind: build
+            workingDir: ${PROJECT_SOURCE}
+          id: install
+        - exec:
+            commandLine: npm start
+            component: runtime
+            group:
+              isDefault: true
+              kind: run
+            workingDir: ${PROJECT_SOURCE}
+          id: run
+        - exec:
+            commandLine: npm run debug
+            component: runtime
+            group:
+              isDefault: true
+              kind: debug
+            workingDir: ${PROJECT_SOURCE}
+          id: debug
+        - exec:
+            commandLine: npm test
+            component: runtime
+            group:
+              isDefault: true
+              kind: test
+            workingDir: ${PROJECT_SOURCE}
+          id: test
+        # This is the main "composite" command that will run all below commands
+        - id: deploy
+          composite:
+            commands:
+            - build-image
+            - k8s-deployment
+            - k8s-service
+            - k8s-url
+            group:
+              isDefault: true
+              kind: deploy
+        # Below are the commands and their respective components that they are "linked" to deploy
+        - id: build-image
+          apply:
+            component: outerloop-build
+        - id: k8s-deployment
+          apply:
+            component: outerloop-deployment
+        - id: k8s-service
+          apply:
+            component: outerloop-service
+        - id: k8s-url
+          apply:
+            component: outerloop-url
+        components:
+        - container:
+            args:
+            - tail
+            - -f
+            - /dev/null
+            endpoints:
+            - name: http-node
+              targetPort: 3000
+            - exposure: none
+              name: debug
+              targetPort: 5858
+            env:
+            - name: DEBUG_PORT
+              value: "5858"
+            image: registry.suse.com/bci/nodejs:16:latest
+            memoryLimit: 1024Mi
+            mountSources: true
+          name: runtime
+        # This will build the container image before deployment
+        - name: outerloop-build
+          image:
+            dockerfile:
+              buildContext: ${PROJECT_SOURCE}
+              rootRequired: false
+              uri: ./Dockerfile
+            imageName: "{{CONTAINER_IMAGE}}"
+        # This will create a Deployment in order to run your container image across
+        # the cluster.
+        - name: outerloop-deployment
+          kubernetes:
+            inlined: |
+              kind: Deployment
+              apiVersion: apps/v1
+              metadata:
+                name: {{RESOURCE_NAME}}
+              spec:
+                replicas: 1
+                selector:
+                  matchLabels:
+                    app: {{RESOURCE_NAME}}
+                template:
+                  metadata:
+                    labels:
+                      app: {{RESOURCE_NAME}}
+                  spec:
+                    containers:
+                      - name: {{RESOURCE_NAME}}
+                        image: {{CONTAINER_IMAGE}}
+                        ports:
+                          - name: http
+                            containerPort: {{CONTAINER_PORT}}
+                            protocol: TCP
+                        resources:
+                          limits:
+                            memory: "1024Mi"
+                            cpu: "500m"
 
-```yaml
-- name: outerloop-url
-  kubernetes:
-    inlined: |
-      apiVersion: networking.k8s.io/v1
-      kind: Ingress
-      metadata:
-        name: {{RESOURCE_NAME}}
-      spec:
-        rules:
-          - host: "{{DOMAIN_NAME}}"
-            http:
-              paths:
-                - path: "/"
-                  pathType: Prefix
-                  backend:
-                    service:
-                      name: {{RESOURCE_NAME}}
-                      port:
-                        number: {{CONTAINER_PORT}}
-```
-
-</details>
-
-* Below is the example `devfile.yaml` that you can use to help illustrate command and variable settings after they are all put together. Please review your Devfile to match or update the appropriate variables as noted below:
-
-<details>
-<summary>Final Devfile</summary>
-
-```yaml
-commands:
-- exec:
-    commandLine: npm install
-    component: runtime
-    group:
-      isDefault: true
-      kind: build
-    workingDir: ${PROJECT_SOURCE}
-  id: install
-- exec:
-    commandLine: npm start
-    component: runtime
-    group:
-      isDefault: true
-      kind: run
-    workingDir: ${PROJECT_SOURCE}
-  id: run
-- exec:
-    commandLine: npm run debug
-    component: runtime
-    group:
-      isDefault: true
-      kind: debug
-    workingDir: ${PROJECT_SOURCE}
-  id: debug
-- exec:
-    commandLine: npm test
-    component: runtime
-    group:
-      isDefault: true
-      kind: test
-    workingDir: ${PROJECT_SOURCE}
-  id: test
-# This is the main "composite" command that will run all below commands
-- id: deploy
-  composite:
-    commands:
-    - build-image
-    - k8s-deployment
-    - k8s-service
-    - k8s-url
-    group:
-      isDefault: true
-      kind: deploy
-# Below are the commands and their respective components that they are "linked" to deploy
-- id: build-image
-  apply:
-    component: outerloop-build
-- id: k8s-deployment
-  apply:
-    component: outerloop-deployment
-- id: k8s-service
-  apply:
-    component: outerloop-service
-- id: k8s-url
-  apply:
-    component: outerloop-url
-components:
-- container:
-    args:
-    - tail
-    - -f
-    - /dev/null
-    endpoints:
-    - name: http-node
-      targetPort: 3000
-    - exposure: none
-      name: debug
-      targetPort: 5858
-    env:
-    - name: DEBUG_PORT
-      value: "5858"
-    image: registry.suse.com/bci/nodejs:16:latest
-    memoryLimit: 1024Mi
-    mountSources: true
-  name: runtime
-# This will build the container image before deployment
-- name: outerloop-build
-  image:
-    dockerfile:
-      buildContext: ${PROJECT_SOURCE}
-      rootRequired: false
-      uri: ./Dockerfile
-    imageName: "{{CONTAINER_IMAGE}}"
-# This will create a Deployment in order to run your container image across
-# the cluster.
-- name: outerloop-deployment
-  kubernetes:
-    inlined: |
-      kind: Deployment
-      apiVersion: apps/v1
-      metadata:
-        name: {{RESOURCE_NAME}}
-      spec:
-        replicas: 1
-        selector:
-          matchLabels:
-            app: {{RESOURCE_NAME}}
-        template:
-          metadata:
-            labels:
-              app: {{RESOURCE_NAME}}
-          spec:
-            containers:
-              - name: {{RESOURCE_NAME}}
-                image: {{CONTAINER_IMAGE}}
+        # This will create a Service so your Deployment is accessible.
+        # Depending on your cluster, you may modify this code so it's a
+        # NodePort, ClusterIP or a LoadBalancer service.
+        - name: outerloop-service
+          kubernetes:
+            inlined: |
+              apiVersion: v1
+              kind: Service
+              metadata:
+                name: {{RESOURCE_NAME}}
+              spec:
                 ports:
-                  - name: http
-                    containerPort: {{CONTAINER_PORT}}
-                    protocol: TCP
-                resources:
-                  limits:
-                    memory: "1024Mi"
-                    cpu: "500m"
+                - name: "{{CONTAINER_PORT}}"
+                  port: {{CONTAINER_PORT}}
+                  protocol: TCP
+                  targetPort: {{CONTAINER_PORT}}
+                selector:
+                  app: {{RESOURCE_NAME}}
+                type: NodePort
+        - name: outerloop-url
+          kubernetes:
+            inlined: |
+              apiVersion: networking.k8s.io/v1
+              kind: Ingress
+              metadata:
+                name: {{RESOURCE_NAME}}
+              spec:
+                rules:
+                  - host: "{{DOMAIN_NAME}}"
+                    http:
+                      paths:
+                        - path: "/"
+                          pathType: Prefix
+                          backend:
+                            service:
+                              name: {{RESOURCE_NAME}}
+                              port:
+                                number: {{CONTAINER_PORT}}
+        metadata:
+          description: Stack with Node.js 16
+          displayName: Node.js Runtime
+          icon: https://nodejs.org/static/images/logos/nodejs-new-pantone-black.svg
+          language: JavaScript
+          name: my-node-app
+          projectType: Node.js
+          tags:
+          - Node.js
+          - Express
+          - ubi8
+          version: 2.1.1
+        schemaVersion: 2.2.0
+        starterProjects:
+        - git:
+            remotes:
+              origin: https://github.com/odo-devfiles/nodejs-ex.git
+          name: nodejs-starter
+        # Add the following variables code anywhere in devfile.yaml
+        # This MUST be a container registry you are able to access
+        variables:
+          CONTAINER_IMAGE: docker.io/<INSERTUSERNAME>/node-odo-example
+          RESOURCE_NAME: my-node-app
+          CONTAINER_PORT: "3000"
+          DOMAIN_NAME: node.example.com
+        ```
 
-# This will create a Service so your Deployment is accessible.
-# Depending on your cluster, you may modify this code so it's a
-# NodePort, ClusterIP or a LoadBalancer service.
-- name: outerloop-service
-  kubernetes:
-    inlined: |
-      apiVersion: v1
-      kind: Service
-      metadata:
-        name: {{RESOURCE_NAME}}
-      spec:
-        ports:
-        - name: "{{CONTAINER_PORT}}"
-          port: {{CONTAINER_PORT}}
-          protocol: TCP
-          targetPort: {{CONTAINER_PORT}}
-        selector:
-          app: {{RESOURCE_NAME}}
-        type: NodePort
-- name: outerloop-url
-  kubernetes:
-    inlined: |
-      apiVersion: networking.k8s.io/v1
-      kind: Ingress
-      metadata:
-        name: {{RESOURCE_NAME}}
-      spec:
-        rules:
-          - host: "{{DOMAIN_NAME}}"
-            http:
-              paths:
-                - path: "/"
-                  pathType: Prefix
-                  backend:
-                    service:
-                      name: {{RESOURCE_NAME}}
-                      port:
-                        number: {{CONTAINER_PORT}}
-metadata:
-  description: Stack with Node.js 16
-  displayName: Node.js Runtime
-  icon: https://nodejs.org/static/images/logos/nodejs-new-pantone-black.svg
-  language: JavaScript
-  name: my-node-app
-  projectType: Node.js
-  tags:
-  - Node.js
-  - Express
-  - ubi8
-  version: 2.1.1
-schemaVersion: 2.2.0
-starterProjects:
-- git:
-    remotes:
-      origin: https://github.com/odo-devfiles/nodejs-ex.git
-  name: nodejs-starter
-# Add the following variables code anywhere in devfile.yaml
-# This MUST be a container registry you are able to access
-variables:
-  CONTAINER_IMAGE: docker.io/<INSERTUSERNAME>/node-odo-example
-  RESOURCE_NAME: my-node-app
-  CONTAINER_PORT: "3000"
-  DOMAIN_NAME: node.example.com
-  ```
+        </details>
 
-</details>
+4.  **Deploy the Application**
 
-4. Now, you can run the command [`odo deploy`](https://odo.dev/docs/command-reference/deploy) to deploy the application to the cluster:
+    Now you can run the `odo deploy` command to build, push, and deploy your application to the cluster.
 
-:::caution
-You may run into an `unauthorized: image` error as the image may not be covered by Rancher Desktop's allowed images list. To resolve the error, please add the necessary image in *Preferences* > *Container Engine* > *Allowed Images* and hit apply to update allowed images immediately.
-:::
+    > **Troubleshooting:** If you encounter an `unauthorized: image` error, it may be because the image is not in Rancher Desktop's allowed images list. You can add the image in **Preferences > Container Engine > Allowed Images**.
 
-<details>
-<summary>Sample Output</summary>
+    <details>
+    <summary>Sample Output</summary>
 
-```shell
-$ odo deploy
-  __
- /  \__     Running the application in Deploy mode using my-node-app Devfile
- \__/  \    Namespace: odo-dev
- /  \__/    odo version: v3.13.0
- \__/
+    ```shell
+    $ odo deploy
+      __
+     /  \__     Running the application in Deploy mode using my-node-app Devfile
+     \__/  \    Namespace: odo-dev
+     /  \__/    odo version: v3.13.0
+     \__/
 
-↪ Building & Pushing Image: docker.io/arjsin/nodejs-odo-example
- •  Building image locally  ...
-[+] Building 2.7s (9/9) FINISHED                                                
- => [internal] load build definition from Dockerfile                       0.0s
- => => transferring dockerfile: 405B                                       0.0s
- => [internal] load .dockerignore                                          0.0s
- => => transferring context: 364B                                          0.0s
- => [internal] load metadata for registry.suse.com/bci/nodejs:16           2.2s
- => [1/4] FROM registry.suse.com/bci/nodejs:16@sha256:dda0e616a0fcb3dc589  0.0s
- => [internal] load build context                                          0.0s
- => => transferring context: 5.14kB                                        0.0s
- => CACHED [2/4] COPY package*.json ./                                     0.0s
- => CACHED [3/4] RUN npm install --production                              0.0s
- => [4/4] COPY . /opt/app-root/src                                         0.0s
- => exporting to image                                                     0.4s
- => => exporting layers                                                    0.4s
- => => writing image sha256:c6d3ed7d9fb4736d3c4e95b54054533f79d64d3a01e65  0.0s
- => => naming to docker.io/arjsin/nodejs-odo-example                       0.0s
- ✓  Building image locally [3s]
- •  Pushing image to container registry  ...
-Using default tag: latest
-The push refers to repository [docker.io/arjsin/nodejs-odo-example]
-20658d9b13ba: Pushed 
-7b1ee26c3aea: Pushed 
-067890bef08d: Pushed 
-d08e96dfc7bc: Pushed 
-174c0e293bd0: Pushed 
-latest: digest: sha256:ca598fc0c5278e8d00cba41e14914f1d3f7a3561bd4a324f2ffcd33b166135ad size: 1368
- ✓  Pushing image to container registry [30s]
+    ↪ Building & Pushing Image: docker.io/arjsin/nodejs-odo-example
+     •  Building image locally  ...
+    [+] Building 2.7s (9/9) FINISHED
+     => [internal] load build definition from Dockerfile                       0.0s
+     => => transferring dockerfile: 405B                                       0.0s
+     => [internal] load .dockerignore                                          0.0s
+     => => transferring context: 364B                                          0.0s
+     => [internal] load metadata for registry.suse.com/bci/nodejs:16           2.2s
+     => [1/4] FROM registry.suse.com/bci/nodejs:16@sha256:dda0e616a0fcb3dc589  0.0s
+     => [internal] load build context                                          0.0s
+     => => transferring context: 5.14kB                                        0.0s
+     => CACHED [2/4] COPY package*.json ./                                     0.0s
+     => CACHED [3/4] RUN npm install --production                              0.0s
+     => [4/4] COPY . /opt/app-root/src                                         0.0s
+     => exporting to image                                                     0.4s
+     => => exporting layers                                                    0.4s
+     => => writing image sha256:c6d3ed7d9fb4736d3c4e95b54054533f79d64d3a01e65  0.0s
+     => => naming to docker.io/arjsin/nodejs-odo-example                       0.0s
+     ✓  Building image locally [3s]
+     •  Pushing image to container registry  ...
+    Using default tag: latest
+    The push refers to repository [docker.io/arjsin/nodejs-odo-example]
+    20658d9b13ba: Pushed
+    7b1ee26c3aea: Pushed
+    067890bef08d: Pushed
+    d08e96dfc7bc: Pushed
+    174c0e293bd0: Pushed
+    latest: digest: sha256:ca598fc0c5278e8d00cba41e14914f1d3f7a3561bd4a324f2ffcd33b166135ad size: 1368
+     ✓  Pushing image to container registry [30s]
 
-↪ Deploying Kubernetes Component: my-node-app
- ✓  Creating resource Deployment/my-node-app 
+    ↪ Deploying Kubernetes Component: my-node-app
+     ✓  Creating resource Deployment/my-node-app
 
-↪ Deploying Kubernetes Component: my-node-app
- ✓  Creating resource Service/my-node-app 
+    ↪ Deploying Kubernetes Component: my-node-app
+     ✓  Creating resource Service/my-node-app
 
-↪ Deploying Kubernetes Component: my-node-app
- ✓  Creating resource Ingress/my-node-app 
+    ↪ Deploying Kubernetes Component: my-node-app
+     ✓  Creating resource Ingress/my-node-app
 
-Your Devfile has been successfully deployed
-```
+    Your Devfile has been successfully deployed
+    ```
 
-</details>
+    </details>
 
 ### Steps: `odo describe component`
 
-Now, the command [`odo describe component`](https://odo.dev/docs/command-reference/describe-component) can be used to view information from the Devfile such as Kubernetes components, ingresses, and the URL to access the application:
+## Step 4: Inspect and Clean Up Resources
+
+Once your application is deployed, you can use `odo` to inspect its resources and clean them up when you are finished.
+
+### Describing the Component
+
+The `odo describe component` command displays information about your deployed application, including its Kubernetes components, ingresses, and URLs.
 
 ```shell
 odo describe component
@@ -687,9 +677,9 @@ Container components:
 
 </details>
 
-## Steps: `odo delete component`
+### Deleting the Component
 
-After you have completed testing, you can free the resources used by `odo` by using the command [`odo delete component`](https://odo.dev/docs/command-reference/delete-component):
+When you are finished with your application, you can use the `odo delete component` command to remove all of its resources from the cluster.
 
 ```shell
 odo delete component
@@ -713,3 +703,5 @@ The component "my-node-app" is successfully deleted from namespace "odo-dev"
 ```
 
 </details>
+
+This concludes the tutorial on using `odo` with Rancher Desktop. You have learned how to initialize, develop, and deploy a containerized application, as well as how to clean up the resources afterward.

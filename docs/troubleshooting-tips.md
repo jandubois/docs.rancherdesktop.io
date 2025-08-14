@@ -8,105 +8,117 @@ title: Troubleshooting Tips
 
 import TabsConstants from '@site/core/TabsConstants';
 
-This page provides tips to troubleshoot issues you may have with Rancher Desktop.
+This page provides tips to help you troubleshoot common issues with Rancher Desktop.
 
 ### API
 
-#### Q: Rancher Desktop is stuck on `Waiting for Kubernetes API`, what do I do?
+#### Rancher Desktop is stuck on "Waiting for Kubernetes API." What should I do?
 
-**A:** The cause is hard to determine without additional information. Navigate to the Troubleshooting tab and use the button to access the logs. Then go to the [Rancher Desktop GitHub] page and file an issue with the logs attached.
-
-[Rancher Desktop Github]:
-https://github.com/rancher-sandbox/rancher-desktop/issues
+The cause of this issue can be difficult to determine without more information. Please navigate to the **Troubleshooting** tab, click the **Show Logs** button to access the log files, and then file an issue on [GitHub](https://github.com/rancher-sandbox/rancher-desktop/issues) with the logs attached.
 
 ### Containers
 
-#### Q: How can I fix the Docker error when starting a container using the VS Code dev-containers extension with version >`v0.266`?
+#### How do I fix the Docker error when starting a container with the VS Code Dev Containers extension?
 
-**A:** There is a current workaround for users experiencing a Docker error when starting a container using the dev-containers extension for VS code versioned `v0.266` or later and Rancher Desktop `v1.8.1`. Disabling Wayland in the user settings will allow the container to spin up successfully. This can be accomplished by unchecking the box in the `Settings` > `Extensions` > `Dev Containers` tab labelled `Dev > Containers: Mount Wayland Socket (Applies to All Profiles)`.
+There is a known issue with the Dev Containers extension (v0.266 and later) and Rancher Desktop v1.8.1. As a workaround, you can disable Wayland support in the VS Code settings.
 
-#### Q: How do I fix `FATA[0005] subnet 10.4.0.0/24 overlaps with other one on this address space` when running a container using `nerdctl run`?
+In **Settings > Extensions > Dev Containers**, uncheck the **Dev > Containers: Mount Wayland Socket (Applies to All Profiles)** option.
 
-**A:** You will see this error if there's a route rule with an IP address from a conflicting subnet on the Iptables. The conflicting routes could be either from the host network (bridge mode) or the Kubernetes network. A quick workaround to this issue is to shutdown WSL via the command `wsl --shutdown`.
+#### How do I fix the "subnet overlaps" error when running a container with `nerdctl`?
 
-**:warning: Please note that shutting down WSL will stop all other distros along with the `rancher-desktop` distro.**
+If you see the error `FATA[0005] subnet 10.4.0.0/24 overlaps with other one on this address space`, it is because there is a route rule with a conflicting IP address in your `iptables`.
+
+As a quick workaround, you can shut down WSL by running `wsl --shutdown`.
+
+:::caution
+Shutting down WSL will stop all of your distributions, not just the `rancher-desktop` distribution.
+:::
 
 ### Installation
 
-<!-- #966 -->
-#### Q: I'm using Homebrew to install Rancher Desktop, but `brew install rancher-desktop` is failing, why?
+#### Why is `brew install rancher-desktop` failing?
 
-**A:** Due to the Homebrew cask naming conventions, the `-desktop` suffix is dropped from the cask formula name. Use `brew install rancher` instead.
+Due to Homebrew's cask naming conventions, the `-desktop` suffix is dropped from the cask formula name. To install Rancher Desktop with Homebrew, use the command `brew install rancher`.
 
-#### Q: How do I fix `kubectl: command not found` issue on Linux?
+#### How do I fix the "kubectl: command not found" issue on Linux?
 
-**A:** By default, Rancher Desktop creates symlinks of `kubectl`, `docker`, `helm` and `nerdctl` binaries in the `/home/<user>/.local/bin` directory on Linux. To be able to call these commands directly from the console you may add the directory to your `PATH` environment variable by executing the following command in console and performing logout and login:
+By default, Rancher Desktop creates symbolic links for its command-line utilities in the `~/.local/bin` directory. To use these utilities from the command line, you will need to add this directory to your `PATH`.
+
+You can do this by running the following command and then logging out and back in:
 
 ```bash
 echo "export PATH=\$PATH:/home/$(whoami)/.local/bin" >> ~/.bashrc
 ```
 
-#### Q: How do I fix the `Installation Aborted` error while downgrading from an existing MSI installation to an older EXE version (1.6.x or earlier) on Windows?
+#### How do I fix the "Installation Aborted" error when downgrading on Windows?
 
-**A:** You will see this error if the Windows registry key `HKEY_LOCAL_MACHINE\System\CurrentControlSet\Services\EventLog\Application\RancherDesktopPrivilegedService` that is supposed to be deleted during the MSI uninstallation process is not deleted for some reason. Please manually delete the registry key and try installing the EXE version. You can run the below command in a privileged shell to delete the registry key.
+When downgrading from an MSI installation to an EXE installation (v1.6.x or earlier), you may encounter an "Installation Aborted" error. This can happen if a specific Windows registry key is not deleted during the uninstallation process.
 
-```
+To fix this, you will need to manually delete the registry key by running the following command in a privileged shell:
+
+```powershell
 reg.exe delete HKLM\System\CurrentControlSet\Services\EventLog\Application\RancherDesktopPrivilegedService /reg:64 /f
 ```
 
-<!-- RD #1262 -->
-#### Q: I can no longer run `docker compose` after installing Rancher Desktop and uninstalling Docker Desktop, what happened?
+#### Why can't I run `docker compose` after uninstalling Docker Desktop?
 
-**A:** This was an issue related to earlier versions (prior to 1.1.0) of Rancher Desktop.  Rancher Desktop version 1.1.0 and above comes bundled with `docker-compose` for you, and makes the cli plugins available at `~/.docker/cli-plugins`. We strongly recommend you to be on the latest version of Rancher Desktop.
+This was a known issue in versions of Rancher Desktop prior to 1.1.0. As of v1.1.0, Rancher Desktop bundles `docker-compose` and makes the CLI plugins available in the `~/.docker/cli-plugins` directory. We strongly recommend using the latest version of Rancher Desktop to avoid this issue.
 
-If you still don't see `docker-compose` available then please file a bug on [Github](https://github.com/rancher-sandbox/rancher-desktop/issues/new?assignees=&labels=kind%2Fbug&template=bug_report.yml).
+If you are on the latest version and still cannot run `docker compose`, please file an issue on [GitHub](https://github.com/rancher-sandbox/rancher-desktop/issues).
 
-#### Q: I do not see an entry for Rancher Desktop when running `kubectl config get-contexts`, where is it?
+#### Why don't I see an entry for Rancher Desktop in my kubeconfig?
 
-**A:** Rancher Desktop places its configuration in the default location, `~/.kube/config,` and uses that. Your `KUBECONFIG` environment variable may be set to look elsewhere for configuration files.
+Rancher Desktop places its configuration in the default `~/.kube/config` file. If you do not see an entry for Rancher Desktop, it is likely that your `KUBECONFIG` environment variable is set to look for a configuration file in a different location.
 
 ### Networking
 
-#### Q: Why do I see a blank screen when I launch the Cluster Dashboard?
+#### Why do I see a blank screen when I launch the Cluster Dashboard?
 
-**A:** The Cluster Dashboard may not be running correctly because another process on your machine is using ports `9080` or `9443` that the Dashboard process (`steve`) depends on. To solve this, identify and terminate the process using those ports. You can use the command below to identify processes using a specific port on your host machine. Note that on macOS and Linux, the Rancher Dashboard process is named `steve`, while on Windows, it's `steve.exe`. If `steve` is the only process using ports 9080 or 9443, do not terminate it.
+The Cluster Dashboard may not be running correctly because another process on your machine is using port `9080` or `9443`, which the dashboard depends on. To resolve this, you will need to identify and terminate the conflicting process.
 
-Command to find processes using a specific port.
+You can use the following commands to find the process that is using a specific port:
 
 <Tabs groupId="os">
 <TabItem value="Windows">
 
-```
+```powershell
 netstat -ano | findstr :9443
 ```
 
 </TabItem>
 <TabItem value="macOS">
 
-```
+```bash
 lsof -nP -iTCP -sTCP:LISTEN | grep 9443
 ```
 
 </TabItem>
 <TabItem value="Linux">
 
-```
+```bash
 lsof -nP -iTCP -sTCP:LISTEN | grep 9443
 ```
 
 </TabItem>
 </Tabs>
 
+> **Note:** On macOS and Linux, the Rancher Dashboard process is named `steve`. On Windows, it is `steve.exe`. If `steve` is the only process using these ports, do not terminate it.
+
 ### WSL
 
-#### Q: Why do I not see my WSL distro under Rancher Desktop's WSL Integration page?
+#### Why isn't my WSL distribution listed on the WSL Integration page?
 
-**A:** You are likely using a WSL 1 distro. Rancher Desktop supports only WSL 2 distros. You can convert your WSL 1 distro into a WSL 2 distro by running the command `wsl --set-version <distro-name> 2`. You can also run the command `wsl --set-default-version 2` to set all the future distributions you might install to use WSL 2.
+Rancher Desktop only supports WSL 2 distributions. If your distribution is not listed, it is likely a WSL 1 distribution. You can convert it to WSL 2 by running the following command:
 
-<!-- #1156 -->
-#### Q: How do I fix `permission denied` errors when trying to use Docker on WSL?
+```powershell
+wsl --set-version <distro-name> 2
+```
 
-**A:** You need write-permission to access the docker socket. There are many ways to go about that, but this is one of the more common approaches. Using the Ubuntu WSL command-line:
+You can also set WSL 2 as the default for all future distributions by running `wsl --set-default-version 2`.
+
+#### How do I fix the "permission denied" errors when using Docker in WSL?
+
+If you are encountering "permission denied" errors, it is likely because you do not have write permissions for the Docker socket. To resolve this, you can run the following commands from within your WSL distribution:
 
 ```bash
 sudo groupadd docker

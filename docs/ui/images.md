@@ -27,63 +27,57 @@ import TabsConstants from '@site/core/TabsConstants';
 </TabItem>
 </Tabs>
 
-The **Images** tab allows you to manage local container images via the application Graphical User Interface. Depending on the container engine selected, the options include:
+The **Images** tab allows you to build, pull, scan, and manage your container images through the Rancher Desktop user interface.
 
-- Building container images from a local Dockerfile.
-- Pull images from a registry and push images to a registry.
-- Delete, and scan local images.
+For information on how to manage images from the command line, please refer to the [Working with Images tutorial](../tutorials/working-with-images.md).
 
-To view how to manage container images using the command line, refer to the [Images section](../tutorials/working-with-images.md) in the Tutorials.
+### Image List
 
-### Image Management Options
+The main view of the **Images** tab displays a list of all the container images that are currently available in your environment. For each image, you can see its name, tag, and size.
 
-- `Delete`: This option is only available using the container engine `dockerd (moby)`. Images can be selected from the display view and deleted using the `Delete` button.
+You can use the following UI elements to manage the image list:
 
-- `All Images`: This option is only available using the container engine `containerd (nerdctl)` and `k8s.io` namespace. This checkbox can be marked to list all images including default application images in the `Rancher` resource group.
+-   **Filter:** The search box allows you to filter the list of images by name.
+-   **Show All Images (containerd only):** When using the `containerd` runtime with the `k8s.io` namespace, you can check this box to display all images, including system images.
+-   **Namespace (containerd only):** When using the `containerd` runtime, you can use this dropdown menu to filter images by namespace.
 
-- `Namespace`: This option is only available using the container engine `containerd (nerdctl)`. You can select a specific namespace in the cluster via the dropdown, which will then display the associated images.
+### Building an Image
 
-- `Filter`: Accepts either text or numbered input to display filtered images.
+To build a new image from a `Dockerfile`:
+
+1.  Click the **Add Image** button in the upper-right corner.
+2.  Select the **Build** tab.
+3.  Enter a name for your new image (e.g., `my-image:my-tag`).
+4.  Click the **Build** button and select the `Dockerfile` you want to use.
+
+### Pulling an Image
+
+To pull an image from a container registry:
+
+1.  Click the **Add Image** button in the upper-right corner.
+2.  Select the **Pull** tab.
+3.  Enter the name of the image you want to pull.
+    > By default, images are pulled from [Docker Hub]. To pull from a different registry, you must include the hostname in the image name (e.g., `registry.example.com/repo/image:tag`).
+4.  Click the **Pull** button.
+
+[Docker Hub]: https://hub.docker.com/
 
 ### Scanning Images
 
-This feature uses [Trivy] to scan your images for vulnerabilities and configuration issues.
+Rancher Desktop uses [Trivy] to scan your images for security vulnerabilities.
 
 To scan an image:
 
-1. From the image list, find the image you want to scan.
-1. Click **⋮ > Scan**.
-1. A summary of the vulnerabilities, sorted by the level of severity, are displayed.
-1. Click **>** to view the details of each vulnerability, including reference links to learn more about the particular vulnerability.
+1.  In the image list, find the image you want to scan.
+2.  Click the **⋮** button and select **Scan**.
+3.  A summary of the vulnerabilities, sorted by severity, will be displayed.
+4.  You can expand each vulnerability to view more details, including links to more information.
 
-[Trivy]:
-https://github.com/aquasecurity/trivy
+[Trivy]: https://github.com/aquasecurity/trivy
 
-### Adding Images
+### Deleting an Image
 
-#### Pulling Images
+To delete an image from your local environment:
 
-Use this option to pull images from a registry to your virtual machine.
-
-To pull an image:
-
-1. Click the **Add Image** button in the top-right corner.
-1. Click on the **Pull** tab.
-1. Enter the name of the image to pull.
-    > Note: By default, images are pulled from [Docker Hub] which uses the `repo/image[:tag]` format. To pull from other registries, include the hostname `registry.example.com/repo/image[:tag]`.
-1. Click **Pull**.
-
-[Docker Hub]:
-https://hub.docker.com/
-
-#### Building Images
-
-Use this option to build an image and add it to your virtual machine.
-
-To build an image:
-
-1. Click the **Add Image** button in the top-right corner.
-1. Click on the **Build** tab.
-1. Enter a name for the image being built. E.g., `repo/image`, `repo/image:tag`, `registry.example.com/repo/image`, or `registry.example.com/repo/image:tag`.
-1. Click **Build**.
-1. In the file browser, select the Dockerfile to build an image with.
+1.  In the image list, find the image you want to delete.
+2.  Click the **⋮** button and select **Delete**.

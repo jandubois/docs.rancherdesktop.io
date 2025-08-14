@@ -7,16 +7,17 @@ title: Emulation (macOS)
   <link rel="canonical" href="https://docs.rancherdesktop.io/ui/preferences/virtual-machine/emulation"/>
 </head>
 
-### QEMU
+The **Emulation** tab allows you to configure the virtualization technology used by Rancher Desktop on macOS.
 
- ![](rd-versioned-asset://preferences/macOS_virtualMachine_tabEmulation.png)
+![](rd-versioned-asset://preferences/macOS_virtualMachine_tabEmulation.png)
 
-The [**QEMU**](https://www.qemu.org/documentation/) option is enabled by default and turns on a guest operating system. You can switch the virtual machine type after the first run.
+### Virtual Machine Type
 
-### VZ
+You can choose between two virtual machine types:
 
- ![](rd-versioned-asset://preferences/macOS_virtualMachine_tabEmulation.png)
+-   **QEMU:** The default option, [QEMU](https://www.qemu.org/documentation/) is a general-purpose machine emulator and virtualizer.
+-   **VZ:** This option uses the native macOS [Virtualization.Framework](https://developer.apple.com/documentation/virtualization) for running the virtual machine.
 
-You can also enable the **VZ** option to use the native macOS [Virtualization.Framework](https://developer.apple.com/documentation/virtualization) for running a guest machine.
+### Rosetta
 
-The suboption **VZ option** can also be enabled if using **VZ** as your virtual machine type. The suboption enables [Rosetta support](https://developer.apple.com/documentation/virtualization/running_intel_binaries_in_linux_vms_with_rosetta) and allows users to run applications that contain x86_64 instructions on Apple hardware.
+When using the VZ virtual machine type on Apple Silicon, you can enable Rosetta support to run x86_64 (Intel) binaries. This is useful for running container images that have not been built for the ARM64 architecture.

@@ -6,43 +6,66 @@ title: Create a Multi-Node Cluster with k3d
   <link rel="canonical" href="https://docs.rancherdesktop.io/how-to-guides/create-multi-node-cluster"/>
 </head>
 
-Rancher Desktop provides a **single cluster with single node** setup, which is adequate for most local development scenarios. However, there are use cases where, the ability to create a multi node cluster or spin up multiple clusters with flexibilty to switch between clusters is required. Eventhough Rancher Desktop doesn't have in-built multi node/cluster functionality, you can use [k3d](https://k3d.io) with Rancher Desktop to accomplish the same. k3d is a lightweight wrapper to run k3s (a minimal Kubernetes distribution, which is used by Rancher Desktop as well) in docker. k3d makes it very easy to create single- and multi-node k3s clusters in docker, e.g. for local development on Kubernetes.
+By default, Rancher Desktop provides a single-node Kubernetes cluster, which is sufficient for most local development needs. However, some use cases may require a multi-node cluster or the ability to create multiple clusters. While Rancher Desktop does not have built-in support for multi-node clusters, you can use a third-party tool called [k3d](https://k3d.io) to achieve this.
 
-### Steps to spin up a multi-node cluster
+k3d is a lightweight wrapper that runs k3s (the same minimal Kubernetes distribution used by Rancher Desktop) in Docker. It simplifies the process of creating single- and multi-node k3s clusters, making it an excellent tool for local Kubernetes development.
 
-1. Make sure **dockerd(moby)** is selected as the Container Runtime in the **Kubernetes Settings** page.
+### Creating a Multi-Node Cluster
 
-2. Install k3d.
+Follow these steps to set up a multi-node cluster with k3d:
+
+1.  **Set the Container Runtime**
+
+    In the Rancher Desktop UI, navigate to the **Kubernetes Settings** page and ensure that **dockerd(moby)** is selected as the container runtime.
+
+2.  **Install k3d**
+
+    You can install k3d using one of the following commands:
 
 <Tabs groupId="installation-approach">
-  <TabItem value="wget" default>
+<TabItem value="wget" default>
 
 ```
 wget -q -O - https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | bash
 ```
 
-  </TabItem>
-  <TabItem value="curl">
+</TabItem>
+<TabItem value="curl">
 
 ```
 curl -s https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | bash
 ```
 
-  </TabItem>
+</TabItem>
 </Tabs>
 
-3. Run `k3d cluster create` command to spin up multi node clusters. For example:
+3.  **Create a Multi-Node Cluster**
 
-```
-k3d cluster create two-node-cluster --agents 2
-k3d cluster create three-node-cluster --agents 3
-```
+    Use the `k3d cluster create` command to create a cluster with the desired number of nodes. For example, to create a two-node cluster, run:
 
-4. k3d sets the newly created cluster as active. You can switch between clusters via `kubectl config use-context` command. For example:
+    ```
+    k3d cluster create two-node-cluster --agents 2
+    ```
 
-```
-kubectl config use-context k3d-two-node-cluster
-```
-To learn more about **k3s** and **k3d**, refer to these projects' docs at [k3s docs](https://docs.k3s.io/) and [k3d docs](https://k3d.io/).
+    To create a three-node cluster, run:
 
-**:warning: Please note that the clusters created by `k3d` are not managed by Rancher Desktop GUI.**
+    ```
+    k3d cluster create three-node-cluster --agents 3
+    ```
+
+4.  **Switch Between Clusters**
+
+    k3d automatically sets the newly created cluster as the active one. You can switch between different clusters using the `kubectl config use-context` command. For example:
+
+    ```
+    kubectl config use-context k3d-two-node-cluster
+    ```
+
+To learn more about k3s and k3d, please refer to their official documentation:
+
+-   [k3s documentation](https://docs.k3s.io/)
+-   [k3d documentation](https://k3d.io/)
+
+:::caution warning
+Please note that clusters created with `k3d` are not managed by the Rancher Desktop GUI.
+:::

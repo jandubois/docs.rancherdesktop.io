@@ -7,27 +7,21 @@ title: Integrations
   <link rel="canonical" href="https://docs.rancherdesktop.io/ui/preferences/wsl/integrations"/>
 </head>
 
-The Integrations tab allows for the option to make the Rancher Desktop Kubernetes configuration accessible to any Linux distributions configured for WSL. Once enabled, you can communicate with the Rancher Desktop Kubernetes cluster using tools like `kubectl` from within the WSL distribution.
+The **Integrations** tab allows you to make the Rancher Desktop Kubernetes configuration accessible to your WSL distributions. When this option is enabled, you can use tools like `kubectl` from within your WSL distributions to communicate with the Rancher Desktop Kubernetes cluster.
 
 ![](rd-versioned-asset://preferences/Windows_wsl_tabIntegrations.png)
 
-With WSL, memory and CPU allocation is configured globally across all Linux distributions. Refer to the [WSL documentation] for instructions.
+> **Note on Resource Allocation:** In WSL, memory and CPU allocation are configured globally across all Linux distributions. For more information, please refer to the [WSL documentation].
 
-[WSL documentation]:
-https://docs.microsoft.com/en-us/windows/wsl/wsl-config#options-for-wslconfig
+[WSL documentation]: https://docs.microsoft.com/en-us/windows/wsl/wsl-config#options-for-wslconfig
 
 ### `~/.kube/config`
 
-Rancher Desktop will create a symlink from `~/.kube/config` inside the distro to the corresponding `%USERPROFILE%\.kube\config` file on the Windows filesystem.
+When you enable a WSL integration, Rancher Desktop creates a symbolic link from `~/.kube/config` inside the WSL distribution to the `~/.kube/config` file on your Windows file system.
 
-If the `~/.kube/config` file already exists inside the distro and contains only `rancher-desktop` contexts, users, and clusters then it will be deleted and replaced with the symlink.
+-   If the `~/.kube/config` file inside the WSL distribution already exists and only contains a `rancher-desktop` context, it will be replaced with the symbolic link.
+-   If the file contains any other information, it will not be modified. In this case, you will need to manually update the Kubernetes context inside the WSL distribution.
 
-If it contains any other information then the file will not be modified and the user has to update the Rancher Desktop cluster information manually. In that case the "Kubernetes context" menu entry for the notification icon will show (and change) the context for the Win32 side only. The contexts inside distributions will need to be managed manually from a command prompt.
-
-:::caution info
-
-In Rancher Desktop `1.11.1` and `1.12.*` the `~/.kube/config` file was converted from a symlink into a regular file because the network tunnelling option required a different Kubernetes endpoint inside WSL clusters than on the host.
-
-Rancher Desktop `1.13.0` added a network proxy between the cluster and the other distros, so the endpoint is the same again as on the host. If the `~/.kube/config` file only references the `rancher-desktop` cluster then it will automatically be converted into a symlink again. Otherwise the user need to consolidate the different files manually. 
-
+:::info
+In Rancher Desktop versions `1.11.1` and `1.12.*`, the `~/.kube/config` file was converted from a symbolic link to a regular file to support network tunneling. As of version `1.13.0`, a network proxy is used instead, and the file will be converted back to a symbolic link if it only contains a `rancher-desktop` context.
 :::

@@ -8,38 +8,35 @@ title: Deployment Profiles
 
 import TabsConstants from '@site/core/TabsConstants';
 
-Deployment profiles provide 2 features:
+Deployment profiles are a powerful feature for administrators who need to standardize and manage Rancher Desktop settings across multiple users and machines. They allow you to define default configurations and lock specific settings to ensure consistency and compliance.
 
-* "Defaults" provide preference values that are applied on first run (or after a factory reset).
-* "Locked" settings allow an administrator to pin preference values.
+There are two main types of deployment profiles:
 
-They can be specified both by an "admin" or by the "user". If either the "defaults" or the "locked" settings exists in the "admin" context, then the "user" profile is ignored.
+- **Defaults:** These profiles provide a set of default preference values that are applied on the first run of Rancher Desktop or after a factory reset.
+- **Locked:** These profiles allow an administrator to pin specific preference values, preventing users from modifying them through the GUI or CLI.
 
-### Preferences Values at Startup
+Profiles can be specified for both an "admin" and a "user." However, if an admin profile (either "defaults" or "locked") is present, any user profiles will be ignored.
 
-Rancher Desktop settings are determined as follows:
+### How Rancher Desktop Loads Settings
 
-* Load "admin" deployment profile (both "defaults" and "locked")
-* If neither of them exist then load "user" deployment profile (again both "defaults" and "locked")
-* Load saved preferences from `settings.json` file
-* If there are no saved settings, use the "defaults" profile loaded earlier instead
-* Copy values from command-line arguments used to launch the app into settings
-* If the settings are still completely empty, show the first-run dialog
-* Fill any missing values from the builtin application defaults
-* Copy values from the "locked" profile over the current settings
+Rancher Desktop loads its settings in the following order:
 
-The user cannot modify any settings (via GUI or CLI) that have been locked by the profile.
+1.  **Admin Profile:** It first loads the "admin" deployment profile, including both "defaults" and "locked" settings.
+2.  **User Profile:** If no admin profile is found, it loads the "user" deployment profile.
+3.  **Saved Preferences:** It then loads the saved preferences from the `settings.json` file.
+4.  **Defaults Fallback:** If there are no saved settings, the "defaults" from the loaded profile are used.
+5.  **Command-Line Arguments:** Settings are updated with any values passed as command-line arguments during launch.
+6.  **First-Run Dialog:** If no settings have been configured at this point, the first-run dialog is displayed.
+7.  **Application Defaults:** Any remaining missing values are filled in from the built-in application defaults.
+8.  **Locked Settings:** Finally, any values from the "locked" profile are applied, overriding all other settings.
 
-Rancher Desktop will refuse to load the application if a profile exists, but cannot be parsed correctly.
+It is important to note that Rancher Desktop will not start if a profile is present but cannot be parsed correctly. Additionally, deployment profiles are not modified or removed by Rancher Desktop and will persist through factory resets and uninstalls.
 
-Deployment profiles will not be modified or removed by Rancher Desktop. They will not be affected by a factory reset or uninstall.
+The structure of a deployment profile mirrors the application's settings, which you can view by running `rdctl list-settings`:
 
-The structure of the profile data matches the application settings:
-
-```json title="rdctl list-settings"
+```json title="rdctl list-settings output"
 {
   "version": 10,
-  ...
   "containerEngine": {
     "allowedImages": {
       "enabled": false,
@@ -51,11 +48,13 @@ The structure of the profile data matches the application settings:
 }
 ```
 
-The platform-specific documentation below will show how to create a deployment profile that changes the default container engine to `moby`, disables Kubernetes, and locks down the list of allowed images to just `busybox` and `nginx`.
+The following sections provide platform-specific instructions for creating a deployment profile that sets the default container engine to `moby`, disables Kubernetes, and locks the list of allowed images to `busybox` and `nginx`.
 
 ### Locked Preference Fields
 
-For versions `1.9` and later of Rancher Desktop, all preferences values can be locked when configuring a deployment profile. Depending on the directory or registry used for the lock file creation, users may need to have super user permissions for MacOS/Linux or execute from an admin shell for Windows in order to access privileged paths. Once pinned, the various locked values will not be accessible from the application as seen in the UI examples below:
+When a setting is locked, it cannot be changed by the user from the Rancher Desktop UI or from the command line. This feature is useful for enforcing specific configurations in an enterprise environment.
+
+For example, if you lock the Kubernetes version, the user will not be able to change it from the **Kubernetes Settings** screen. The UI will indicate that the setting is locked by displaying a lock icon next to the field.
 
 <details>
 <summary>Locked Fields UI Examples</summary>
@@ -86,9 +85,9 @@ For versions `1.9` and later of Rancher Desktop, all preferences values can be l
 
 </details>
 
-### Profile Format and Location
+### Profile Location and Format
 
-Deployment profiles are stored in a platform-specific format and location.
+Deployment profiles are stored in platform-specific locations and formats.
 
 <Tabs groupId="os" defaultValue={TabsConstants.defaultOs}>
 <TabItem value="Windows">
@@ -322,72 +321,28 @@ rdctl list-settings > ~/.config/rancher-desktop.defaults.json
 </TabItem>
 </Tabs>
 
-### `version` Field
+### Important: The `version` Field
 
-Rancher Desktop version 1.12 introduces an explicit deployment profile `version` field in generated profiles using `rdctl`.
+When creating or updating deployment profiles, it is essential to include a `version` field. This field ensures that Rancher Desktop can correctly interpret the profile. As of version 1.12, `rdctl` automatically includes this field in generated profiles.
 
-If you are using deployment profiles created in previous Rancher Desktop versions, please either regenerate the file with the latest installation, or explicitly add the `version` field to your existing file. See below for updating instructions for various operating systems:
+If you have deployment profiles created with older versions of Rancher Desktop, you will need to add the `version` field manually. The current version is `10`.
 
-#### Linux
+**Linux:**
 
-User deployments are stored in:
+Add `"version": 10` at the beginning of your JSON file, immediately after the opening brace `{`.
 
-```console
-~/.config/rancher-desktop.defaults.json
-~/.config/rancher-desktop.locked.json
+**macOS:**
+
+Add `<key>version</key><integer>10</integer>` after the initial `<dict>` tag in your `.plist` file.
+
+**Windows:**
+
+Add a `DWORD` value named `version` with a value of `10` (hexadecimal `a`) at the top level of each profile:
+
 ```
-
-If the `XDG_CONFIG_HOME` environment variable is set, the user deployments are stored there instead of in `~/.config/....`.
-
-System deployments are stored in:
-
-```console
-/etc/rancher-desktop/defaults.json
-/etc/rancher-desktop/locked.json
-```
-
-Then add `"version": 10` at the very start of your JSON-formatted file immediately after the initial open brace `(})`.
-
-#### macOS
-
-User deployments are stored in:
-
-```console
-~/Library/Preferences/io.rancherdesktop.profile.defaults.plist
-~/Library/Preferences/io.rancherdesktop.profile.locked.plist
-```
-
-System deployments are stored in:
-
-```console
-/Library/Preferences/io.rancherdesktop.profile.defaults.plist
-/Library/Preferences/io.rancherdesktop.profile.locked.plist
-```
-
-Then add `<key>version</key><integer>10</integer>` after the initial `<dict>` tag into your respective `.plist` file.
-
-#### Windows
-
-The Windows deployments are stored in the registry. User deployments are stored at:
-
-```console
-HKEY_CURRENT_USER\SOFTWARE\Policies\Rancher Desktop\Defaults
-HKEY_CURRENT_USER\SOFTWARE\Policies\Rancher Desktop\Locked
-```
-
-And the system deployments are stored at:
-
-```console
-HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Rancher Desktop\Defaults
-HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Rancher Desktop\Locked
-```
-
-Then add a `DWORD` value named `version`, with value `10` (hexadecimal `a`) at the top level of each profile that needs updating:
-
-```console
 "version"=dword:a
 ```
 
 ### Known Issues and Limitations
 
-* You can set default values for `diagnostics.showMuted` (and on Windows `WSL.integrations`) via deployment profile, but currently can't lock them.
+-   Currently, you can set default values for `diagnostics.showMuted` (and `WSL.integrations` on Windows) through a deployment profile, but you cannot lock them.

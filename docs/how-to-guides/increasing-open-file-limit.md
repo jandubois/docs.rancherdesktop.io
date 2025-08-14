@@ -8,70 +8,81 @@ title: Increasing Open File Limit
 
 import TabsConstants from '@site/core/TabsConstants';
 
-You may wish to increase the open file limit as Rancher Desktop's default `ulimit` setting for pods may be too low, depending on your use case. This guide provides steps for increasing the open file limit using provisioning scripts alongside Rancher Desktop's internal processes.
+In some cases, the default `ulimit` for open files in Rancher Desktop may be too low for your workloads. This guide explains how to increase the open file limit using provisioning scripts.
 
-## macOS & Linux Steps
+## macOS & Linux
 
-First, use lima override.yaml to write the provisioning scripts.
+On macOS and Linux, you can use a provisioning script to increase the open file limit.
 
-- Create `override.yaml` file at below path
+1.  **Create an `override.yaml` File**
+
+    First, you will need to create an `override.yaml` file in the lima configuration directory. Please note that you must run Rancher Desktop at least once for this directory to be created.
 
 <Tabs groupId="os">
-  <TabItem value="macOS">
+<TabItem value="macOS">
 
-```
-~/Library/Application\ Support/rancher-desktop/lima/_config/override.yaml
-```
+**Path:** `~/Library/Application Support/rancher-desktop/lima/_config/override.yaml`
 
-  </TabItem>
-  <TabItem value="Linux">
+</TabItem>
+<TabItem value="Linux">
 
-```
-~/.local/share/rancher-desktop/lima/_config/override.yaml
-```
+**Path:** `~/.local/share/rancher-desktop/lima/_config/override.yaml`
 
-  </TabItem>
+</TabItem>
 </Tabs>
 
-You can then use the script below to increase the `ulimit` for containers inside your created `override.yaml` file.
+2.  **Add the Provisioning Script**
 
-```
-provision:
-- mode: system
-  script: |
+    Add the following content to your `override.yaml` file to increase the `ulimit` for containers:
+
+    ```yaml
+    provision:
+    - mode: system
+      script: |
+        #!/bin/sh
+        cat <<'EOF' > /etc/security/limits.d/rancher-desktop.conf
+        * soft     nofile         82920
+        * hard     nofile         82920
+        EOF
+    ```
+
+    If you are using the Elastic platform, you will also need to set the `vm.max_map_count` parameter. You can add this to the same script:
+
+    ```yaml
+    provision:
+    - mode: system
+      script: |
+        #!/bin/sh
+        cat <<'EOF' > /etc/security/limits.d/rancher-desktop.conf
+        * soft     nofile         82920
+        * hard     nofile         82920
+        EOF
+        sysctl -w vm.max_map_count=262144
+    ```
+
+3.  **Restart Rancher Desktop**
+
+    For the changes to take effect, you must stop and restart Rancher Desktop.
+
+## Windows
+
+On Windows, you can use a provisioning script to increase the `max_map_count` parameter, which will raise the open file limit.
+
+1.  **Create a Provisioning Script**
+
+    First, ensure that you have run Rancher Desktop at least once to initialize the necessary configurations.
+
+    Next, create a new file named `map_count.start` in the following directory:
+
+    **Path:** `%LOCALAPPDATA%\rancher-desktop\provisioning`
+
+    Add the following content to the file:
+
+    ```sh
     #!/bin/sh
-    cat <<'EOF' > /etc/security/limits.d/rancher-desktop.conf
-    * soft     nofile         82920
-    * hard     nofile         82920
-    EOF
-```
-
-If using the Elastic platform, please use the script below to set the `vm.max_map_count` parameter as well.
-
-```
-provision:
-- mode: system
-  script: |
-    #!/bin/sh
-    cat <<'EOF' > /etc/security/limits.d/rancher-desktop.conf
-    * soft     nofile         82920
-    * hard     nofile         82920
-    EOF
     sysctl -w vm.max_map_count=262144
-```
+    ```
 
-Lastly, please stop and restart Rancher Desktop in order for the updated limits to take effect.
+2.  **Restart Rancher Desktop**
 
-## Windows Steps
-
-First, be sure that you have run Rancher Desktop at least once in order for the configurations to initialize.
-
-You can then create a provisioning script, say `map_count.start`, at `%LOCALAPPDATA%\rancher-desktop\provisioning` with the below code to update the open file limit by increasing the `max_map_count` parameter.
-
-```
-#!/bin/sh
-
-sysctl -w vm.max_map_count=262144
-```
-
-Lastly, please stop and restart Rancher Desktop for these changes to take effect.
+    For the changes to take effect, you must stop and restart Rancher Desktop.

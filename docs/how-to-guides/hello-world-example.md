@@ -6,142 +6,153 @@ title: Hello World Example
   <link rel="canonical" href="https://docs.rancherdesktop.io/how-to-guides/hello-world-example"/>
 </head>
 
-This tutorial will demonstrate how to get started with Rancher Desktop by pushing an app to a local Kubernetes cluster.
+This tutorial provides a hands-on introduction to Rancher Desktop by walking you through two common use cases: building a container image and running it locally, and deploying a containerized application to a local Kubernetes cluster.
 
-Rancher Desktop works with two container engines, [containerd](https://containerd.io/) and [Moby](https://mobyproject.org/), the open-sourced components of the Docker ecosystem. For `nerdctl`, use the **containerd** runtime. For `docker`, use the **dockerd(moby)** runtime.
+Rancher Desktop supports two container runtimes: [containerd](https://containerd.io/) and [Moby](https://mobyproject.org/) (dockerd). You can select your preferred runtime in the **Kubernetes Settings** panel. This guide provides commands for both `nerdctl` (for containerd) and the Docker CLI (for Moby/dockerd).
 
-### Example#1 - Build Image & Run Container
+## Example 1: Build an Image and Run a Container
 
-#### Create a folder
-```
-mkdir hello-world
-cd hello-world
-```
+This example demonstrates how to build a simple "Hello World" container image and run it locally.
 
-#### Create a blank Dockerfile
+1.  **Create a Project Directory**
 
-On Windows, Create a blank file named `Dockerfile`
+    ```bash
+    mkdir hello-world
+    cd hello-world
+    ```
 
-On Linux, You can use below command to create a blank `Dockerfile`
+2.  **Create a Dockerfile**
 
-```
-vi Dockerfile
-```
+    Create a new file named `Dockerfile` and add the following content:
 
-#### Populate the Dockerfile with the command below
-```
-FROM alpine  
-CMD ["echo", "Hello World!!"]
-```
+    ```dockerfile
+    FROM alpine
+    CMD ["echo", "Hello World!!"]
+    ```
 
-#### Build and run the image for verification purposes
+3.  **Build and Run the Image**
+
+    Use the following commands to build the image and run it in a container. After running the container, the commands will also show you how to list the image and then remove it.
 
 <Tabs groupId="container-runtime">
-  <TabItem value="nerdctl" default>
+<TabItem value="nerdctl" default>
 
-```
+```bash
+# Build the image
 nerdctl build --tag helloworld:v1.0 .
+
+# List the image
 nerdctl images | grep helloworld
+
+# Run the container
 nerdctl run --rm helloworld:v1.0
+
 # Remove the image
-nerdctl rmi helloworld:v1.0 
+nerdctl rmi helloworld:v1.0
 ```
 
-  </TabItem>
-  <TabItem value="docker">
+</TabItem>
+<TabItem value="docker">
 
-```
+```bash
+# Build the image
 docker build --tag helloworld:v1.0 .
+
+# List the image
 docker images | grep helloworld
+
+# Run the container
 docker run --rm helloworld:v1.0
+
 # Remove the image
-docker rmi helloworld:v1.0 
+docker rmi helloworld:v1.0
 ```
 
-  </TabItem>
+</TabItem>
 </Tabs>
 
-### Example#2 - Build Image & Deploy Container to Kubernetes
+## Example 2: Deploy an Application to Kubernetes
 
-Make sure that you switch the **Container Runtime** setting in the **Kubernetes Settings** panel to either `dockerd` or `containerd` as needed.
+This example demonstrates how to build a container image for a simple NGINX web server and deploy it to your local Kubernetes cluster.
 
-#### Create a folder and add a sample index.html file as follows
-```
-mkdir nginx
-cd nginx
-echo "<h1>Hello World from NGINX!!</h1>" > index.html
-```
+1.  **Create a Project Directory and Sample HTML**
 
-#### Create a blank Dockerfile
+    ```bash
+    mkdir nginx
+    cd nginx
+    echo "<h1>Hello World from NGINX!!</h1>" > index.html
+    ```
 
-On Windows, Create a blank file named `Dockerfile`
+2.  **Create a Dockerfile**
 
-On Linux, You can use below command to create a blank `Dockerfile`
+    Create a new file named `Dockerfile` and add the following content:
 
-```
-vi Dockerfile
-```
+    ```dockerfile
+    FROM nginx:alpine
+    COPY ./index.html /usr/share/nginx/html
+    ```
 
-#### Populate the Dockerfile with the command below
-```
-FROM nginx:alpine
-COPY ./index.html /usr/share/nginx/html
-```
+3.  **Build the Image**
 
-#### Build image from code locally
+    Use the following commands to build the image.
 
-:warning: **Note:** Please note that you need to pass the flag `--namespace k8s.io` to the `nerdctl` build command, so that `nerdctl` builds the image and then makes it available in the `k8s.io` namespace.
+    :::caution Important for `nerdctl` users:
+    When using `nerdctl`, you must include the `--namespace k8s.io` flag to make the image available to the Kubernetes cluster.
+    :::
 
 <Tabs groupId="container-runtime">
-  <TabItem value="nerdctl" default>
+<TabItem value="nerdctl" default>
 
-```
+```bash
 nerdctl --namespace k8s.io build --tag nginx-helloworld:latest .
 nerdctl --namespace k8s.io images | grep nginx-helloworld
 ```
 
-  </TabItem>
-  <TabItem value="docker">
+</TabItem>
+<TabItem value="docker">
 
-```
+```bash
 docker build --tag nginx-helloworld:latest .
 docker images | grep nginx-helloworld
 ```
-  </TabItem>
+
+</TabItem>
 </Tabs>
 
-#### Deploy to Kubernetes
+4.  **Deploy to Kubernetes**
 
-Run below command to create and run a pod using the image built in the previous step. 
+    Use the following commands to create a pod for the application and forward a local port to it.
 
-:warning: **Note:** Please note that you need to pass the flag `--image-pull-policy=Never` to use a local image with `:latest` tag, as `:latest` tag will always try to pull the images from a remote repository.
+    :::note
+    When using an image with the `:latest` tag, you must set `--image-pull-policy=Never`. Otherwise, Kubernetes will try to pull the image from a remote repository instead of using your local image.
+    :::
 
-```
-kubectl run hello-world --image=nginx-helloworld:latest --image-pull-policy=Never --port=80
-kubectl port-forward pods/hello-world 8080:80
-```
+    ```bash
+    kubectl run hello-world --image=nginx-helloworld:latest --image-pull-policy=Never --port=80
+    kubectl port-forward pods/hello-world 8080:80
+    ```
 
-Point your web browser to `localhost:8080`, and you will see the message `Hello World from NGINX!!`. If you prefer to stay on the command line, use `curl localhost:8080`.
+    You can now access your application by navigating to `http://localhost:8080` in your web browser or by running `curl localhost:8080` in your terminal.
 
-#### Delete the pod and the image
+5.  **Clean Up**
+
+    Once you are finished, use the following commands to delete the pod and the container image.
 
 <Tabs groupId="container-runtime">
-  <TabItem value="nerdctl" default>
+<TabItem value="nerdctl" default>
 
-```
+```bash
 kubectl delete pod hello-world
-# Remove the image
-nerdctl --namespace k8s.io rmi nginx-helloworld:latest 
+nerdctl --namespace k8s.io rmi nginx-helloworld:latest
 ```
- 
-  </TabItem>
-  <TabItem value="docker">
 
-```
-kubectl delete pod hello-world 
-# Remove the image
+</TabItem>
+<TabItem value="docker">
+
+```bash
+kubectl delete pod hello-world
 docker rmi nginx-helloworld:latest
 ```
 
-  </TabItem>
+</TabItem>
 </Tabs>

@@ -9,7 +9,7 @@ title: Environment
 
 import TabsConstants from '@site/core/TabsConstants';
 
-Allows for configuration of the `$PATH` variable in the users shell in order to interact with Rancher Desktop installed utilities.
+The **Environment** tab allows you to configure how the Rancher Desktop command-line utilities are added to your system's `PATH`.
 
 <Tabs groupId="os">
 <TabItem value="macOS">
@@ -18,14 +18,12 @@ Allows for configuration of the `$PATH` variable in the users shell in order to 
 
 #### Configure PATH
 
-A Rancher Desktop installation comes with command-line utilities that are used to interface with its various features. Some examples of these utilities are `docker`, `nerdctl`, `kubectl`, and `helm`. These utilities are located in `~/.rd/bin` - you may see which utilities are included in your installation by running `ls ~/.rd/bin`.
+Rancher Desktop includes several command-line utilities for interacting with its features, such as `docker`, `nerdctl`, `kubectl`, and `helm`. These utilities are located in the `~/.rd/bin` directory. For you to be able to use them from the command line, this directory must be included in your shell's `PATH` environment variable.
 
-In order to use the utilities, `~/.rd/bin` must be in the `PATH` variable in your shell.
+There are two options for managing the `PATH`:
 
-There are two options for doing this:
-
-- **Automatic**: `PATH` management will add `~/.rd/bin` to your `PATH` by modifying your shell .rc files for you.
-- **Manual**: `PATH` management does not change anything - in this mode, you must add `~/.rd/bin` to your `PATH` yourself.
+-   **Automatic:** Rancher Desktop will automatically add the `~/.rd/bin` directory to your `PATH` by modifying your shell's `.rc` files.
+-   **Manual:** You will need to manually add the `~/.rd/bin` directory to your `PATH` yourself.
 
 </TabItem>
 <TabItem value="Linux">
@@ -34,14 +32,12 @@ There are two options for doing this:
 
 #### Configure PATH
 
-A Rancher Desktop installation comes with command-line utilities that are used to interface with its various features. Some examples of these utilities are `docker`, `nerdctl`, `kubectl`, and `helm`. These utilities are located in `~/.rd/bin` - you may see which utilities are included in your installation by running `ls ~/.rd/bin`.
+Rancher Desktop includes several command-line utilities for interacting with its features, such as `docker`, `nerdctl`, `kubectl`, and `helm`. These utilities are located in the `~/.rd/bin` directory. For you to be able to use them from the command line, this directory must be included in your shell's `PATH` environment variable.
 
-In order to use the utilities, `~/.rd/bin` must be in the `PATH` variable in your shell.
+There are two options for managing the `PATH`:
 
-There are two options for doing this:
-
-- **Automatic**: `PATH` management will add `~/.rd/bin` to your `PATH` by modifying your shell .rc files for you.
-- **Manual**: `PATH` management does not change anything - in this mode, you must add `~/.rd/bin` to your `PATH` yourself.
+-   **Automatic:** Rancher Desktop will automatically add the `~/.rd/bin` directory to your `PATH` by modifying your shell's `.rc` files.
+-   **Manual:** You will need to manually add the `~/.rd/bin` directory to your `PATH` yourself.
 
 </TabItem>
 </Tabs>

@@ -6,167 +6,111 @@ title: Using Persistent Storage
   <link rel="canonical" href="https://docs.rancherdesktop.io/tutorials/using-persistent-storage/"/>
 </head>
 
-Containers are, by design, ephemeral and stateless. However, most real-world use cases require containers to produce or consume data that often needs to be persisted. To address this challenge, container engines offer mechanisms such as **Bind mounts** and **Volumes**. Both the docker and nerdctl CLIs provide options `-v` and `--mount` to start a container with a bind mount or a volume.
+By design, containers are ephemeral and stateless. However, in most real-world scenarios, you will need to persist the data produced or consumed by your containers. To address this, container engines provide two primary mechanisms for persistent storage: **bind mounts** and **volumes**.
 
-## Bind mount
+This guide will walk you through the process of using both bind mounts and volumes in Rancher Desktop.
 
-**Bind mount** mounts a file or directory on the host machine into a container. For example, to mount the current directory of the host machine to `/app/src` directory of a container, you can use `-v` or the slightly verbose `--mount` as shown below.
+## Bind Mounts
 
-### Using `-v`
+A **bind mount** allows you to mount a file or directory from your host machine into a container. This is useful for sharing source code, configuration files, or other data between your host and your containers.
 
-#### macOS & Linux
-
-<Tabs groupId="container-runtime">
-  <TabItem value="nerdctl" default>
-
-```console
-nerdctl container run --rm -it -v $(pwd)/src:/app/src alpine:latest /bin/sh
-```
-  </TabItem>
-  <TabItem value="docker">
-
-```console
-docker container run --rm -it -v $(pwd)/src:/app/src alpine:latest /bin/sh
-```
-  </TabItem>
-</Tabs>
-
-#### Windows
+You can create a bind mount using either the `-v` or `--mount` flag with the `docker run` or `nerdctl run` command. The following examples demonstrate how to mount the `src` subdirectory of your current working directory into the `/app/src` directory of a container.
 
 <Tabs groupId="container-runtime">
-  <TabItem value="nerdctl" default>
+<TabItem value="nerdctl" default>
 
-```console
-// Cmd
-nerdctl container run --rm -it -v %cd%/src:/app/src alpine:latest /bin/sh
-
-// Powershell
-nerdctl container run --rm -it -v ${pwd}/src:/app/src alpine:latest /bin/sh
+**Using the `-v` flag:**
+```bash
+nerdctl run --rm -it -v $(pwd)/src:/app/src alpine:latest /bin/sh
 ```
-  </TabItem>
-  <TabItem value="docker">
 
-```console
-// Cmd
-docker container run --rm -it -v %cd%/src:/app/src alpine:latest /bin/sh
-
-// Powershell
-docker container run --rm -it -v ${pwd}/src:/app/src alpine:latest /bin/sh
+**Using the `--mount` flag:**
+```bash
+nerdctl run --rm -it --mount=type=bind,source=$(pwd)/src,target=/app/src alpine:latest /bin/sh
 ```
-  </TabItem>
+
+</TabItem>
+<TabItem value="docker">
+
+**Using the `-v` flag:**
+```bash
+docker run --rm -it -v $(pwd)/src:/app/src alpine:latest /bin/sh
+```
+
+**Using the `--mount` flag:**
+```bash
+docker run --rm -it --mount=type=bind,source=$(pwd)/src,target=/app/src alpine:latest /bin/sh
+```
+
+</TabItem>
 </Tabs>
 
-### Using `--mount`
-
-#### macOS & Linux
-
-<Tabs groupId="container-runtime">
-  <TabItem value="nerdctl" default>
-
-```console
-nerdctl container run --rm -it --mount=type=bind,source=$(pwd)/src,target=/app/src alpine:latest /bin/sh
-```
-  </TabItem>
-  <TabItem value="docker">
-
-```console
-docker container run --rm -it --mount=type=bind,source=$(pwd)/src,target=/app/src alpine:latest /bin/sh
-```
-  </TabItem>
-</Tabs>
-
-#### Windows
-
-<Tabs groupId="container-runtime">
-  <TabItem value="nerdctl" default>
-
-```console
-// Cmd
-nerdctl container run --rm -it --mount=type=bind,source=%cd%/src,target=/app/src alpine:latest /bin/sh
-
-// Powershell
-nerdctl container run --rm -it --mount="type=bind,source=${pwd}/src,target=/app/src" alpine:latest /bin/sh
-```
-  </TabItem>
-  <TabItem value="docker">
-
-```console
-// Cmd
-docker container run --rm -it --mount=type=bind,source=%cd%/src,target=/app/src alpine:latest /bin/sh
-
-// Powershell
-docker container run --rm -it --mount="type=bind,source=${pwd}/src,target=/app/src" alpine:latest /bin/sh
-```
-  </TabItem>
-</Tabs>
-
-If `/app/src` is not available on the host machine then the command creates it. Anything you create inside the directory `/app/src` on the host machine is available at `/app/src` inside the container and vice versa. Try adding or modifying content inside `/app/src` in the container and exit the container by typing `exit` in the shell. On restarting the container, you will notice that the content of `/app/src`  is persisted and same would be the case for container engine, and host machine restarts.
-.
-
-:::info
-
-Currently, Rancher Desktop allows creating bind mounts only on the following directories by default: `/Users/$USER` on macOS, `/home/$USER` on Linux, and `/tmp/rancher-desktop` on both. For Windows, all files are automatically shared via WSL2.
-
-If you want to change the behavior of the mounts, you can use provisioning scripts as described in the [thread](https://github.com/rancher-sandbox/rancher-desktop/issues/1209#issuecomment-1370181132).
-
+:::note
+In Command Prompt, replace `$(pwd)` with `%cd%`. In PowerShell, replace `$(pwd)` with `${pwd}`.
 :::
 
-## Volume
+Once the container is running, any changes you make to the `/app/src` directory inside the container will be reflected in the `src` directory on your host, and vice versa.
 
-**Volume** is an another mechanism to achieve persistance for container workloads. While Bind mounts link to the host's file system, volumes on the otherhand are managed by the container engine and provide data persistence and isolation from the host. For example, to create a named volume and start a container using the volume, you can use `-v` or the slightly verbose `--mount` as shown below.
+:::note
+By default, Rancher Desktop only allows bind mounts to be created in the following directories: `/Users/$USER` on macOS, `/home/$USER` on Linux, and `/tmp/rancher-desktop` on both. On Windows, all files are automatically shared via WSL2. To mount other directories, you will need to use a [provisioning script](../how-to-guides/provisioning-scripts.md).
+:::
 
+## Volumes
 
-- Create a named volume
+A **volume** is another mechanism for persisting data in containers. Unlike bind mounts, volumes are managed by the container engine and are isolated from the host's file system. This makes them a good choice for storing application data that does not need to be directly accessed from the host.
+
+### Step 1: Create a Volume
+
+First, create a named volume.
 
 <Tabs groupId="container-runtime">
-  <TabItem value="nerdctl" default>
+<TabItem value="nerdctl" default>
 
-```console
+```bash
 nerdctl volume create my-persistent-data
 ```
-  </TabItem>
-  <TabItem value="docker">
 
-```console
+</TabItem>
+<TabItem value="docker">
+
+```bash
 docker volume create my-persistent-data
 ```
-  </TabItem>
+
+</TabItem>
 </Tabs>
 
-- Start a container using the named volume created in the previous step
+### Step 2: Mount the Volume
 
-### Using `-v`
+Now, you can mount the volume into a container using either the `-v` or `--mount` flag.
 
 <Tabs groupId="container-runtime">
-  <TabItem value="nerdctl" default>
+<TabItem value="nerdctl" default>
 
-```console
-nerdctl container run --rm -it -v my-persistent-data:/app/src alpine:latest /bin/sh
+**Using the `-v` flag:**
+```bash
+nerdctl run --rm -it -v my-persistent-data:/app/src alpine:latest /bin/sh
 ```
-  </TabItem>
-  <TabItem value="docker">
 
-```console
-docker container run --rm -it -v my-persistent-data:/app/src alpine:latest /bin/sh
+**Using the `--mount` flag:**
+```bash
+nerdctl run --rm -it --mount=type=volume,source=my-persistent-data,target=/app/src alpine:latest /bin/sh
 ```
-  </TabItem>
+
+</TabItem>
+<TabItem value="docker">
+
+**Using the `-v` flag:**
+```bash
+docker run --rm -it -v my-persistent-data:/app/src alpine:latest /bin/sh
+```
+
+**Using the `--mount` flag:**
+```bash
+docker run --rm -it --mount=type=volume,source=my-persistent-data,target=/app/src alpine:latest /bin/sh
+```
+
+</TabItem>
 </Tabs>
 
-### Using `--mount`
-
-<Tabs groupId="container-runtime">
-  <TabItem value="nerdctl" default>
-
-```console
-nerdctl container run --rm -it --mount=type=volume,source=my-persistent-data,target=/app/src alpine:latest /bin/sh
-```
-  </TabItem>
-  <TabItem value="docker">
-
-```console
-docker container run --rm -it --mount=type=volume,source=my-persistent-data,target=/app/src alpine:latest /bin/sh
-```
-  </TabItem>
-</Tabs>
-
-Try adding or modifying content inside `/app/src` in the container and exit the container by typing `exit` in the shell. On restarting the container, you will notice that the content of `/app/src`  is persisted and same would be the case for container engine, and host machine restarts.
+Any data written to the `/app/src` directory inside the container will be stored in the `my-persistent-data` volume. The data will persist even if you stop or remove the container.

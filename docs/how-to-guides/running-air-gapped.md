@@ -1,5 +1,5 @@
 ---
-title: Running When Offline
+title: Running in an Air-Gapped Environment
 ---
 
 <head>
@@ -8,165 +8,128 @@ title: Running When Offline
 
 import TabsConstants from '@site/core/TabsConstants';
 
-Rancher Desktop can be run when offline, aka in air-gapped mode. This document covers requirements
-and possible problems when running in air-gapped mode.
+Rancher Desktop can be run in an air-gapped environment, where there is no access to the internet. This guide explains the requirements and procedures for running Rancher Desktop offline.
 
-### A Note for Windows users
+:::note
+This guide uses PowerShell syntax for environment variables (e.g., `$env:FOO`). If you are using the Command Prompt, please use the syntax `%FOO%` instead.
+:::
 
-This document uses Powershell syntax for environment variables. If you're using the Command shell
-instead, where you see an environment variable reference of `$env:FOO`, please substitute it with `%FOO%`.
+## How Rancher Desktop Handles Offline Environments
 
-### Network-Sensitive areas
+Rancher Desktop requires network access for two main functions:
 
-There are two areas where Rancher Desktop assumes network availability and will recover in an air-gapped situation:
+1.  **Pulling Kubernetes Images:** When you select a new version of Kubernetes, Rancher Desktop pulls the necessary k3s container images and stores them in a local cache.
+2.  **Managing `kubectl` Versions:** Rancher Desktop uses a wrapper called `kuberlr` to manage `kubectl` versions. This ensures that the `kubectl` client version is always compatible with the Kubernetes server version.
 
-1. Pulling Kubernetes `k3s` images into the `k3s` cache directory
+When running in an air-gapped environment, you will need to manually populate the cache with the required Kubernetes images and `kubectl` executables.
 
-2. Using `kuberlr` as a version-aware wrapper around `kubectl`, so the client never differs from the Kubernetes server by more than one minor version.
+## Option 1: Preparing an Existing Installation for Offline Use
 
-### Existing Deployments
+If you have already installed and run Rancher Desktop on a machine with internet access, you can prepare it for offline use by pre-populating the necessary caches.
 
-If Rancher Desktop has been installed on a machine initially with networked access, it can
-be run subsequently on that machine after network connectivity has been turned off. The main
-difference in core functionality is that the list of versions of Kubernetes available in drop-down menus
-is limited to those versions that have actually been downloaded and stored in the cache.
+The key is to ensure that for every version of Kubernetes you intend to use offline, the corresponding `kubectl` executable has been downloaded.
 
-There is a problem using the `kubectl` client, because of the `kuberlr` wrapper (Windows users should add the `.exe` suffix to each executable utility file).
+For example, if you have versions `1.29.7`, `1.24.3`, and `1.21.14` of k3s in your cache, but you have only ever used `kubectl` with versions `1.24.3` and `1.21.14`, the `kuberlr` directory will only contain the `kubectl` executables for those two versions. If you then go offline and switch to Kubernetes `1.29.7`, `kubectl` commands will fail because `kuberlr` will be unable to download the required executable.
 
-In this case, we're discussing a system that was initialized when connected to the internet, but we're about
-to take the machine offline for future use.
+To prevent this, you should perform the following steps while you still have an internet connection:
 
-Suppose there are three versions of `k3s` in the `rancher-desktop` cache.
+1.  Open the Rancher Desktop **Kubernetes Settings** panel.
+2.  For each version of Kubernetes that you plan to use offline, select it from the dropdown menu and wait for the new version to become active.
+3.  Run a `kubectl` command, such as `kubectl cluster-info`, to trigger the download of the corresponding `kubectl` executable.
 
-- 1.29.7
+By doing this, you will ensure that all the necessary `kubectl` versions are cached and available for offline use.
 
-- 1.24.3
+## Option 2: Preparing a New Air-Gapped Installation
 
-- 1.21.14
+To set up Rancher Desktop on a machine that has never had internet access, you will need to use a machine with internet access to download the necessary files and then transfer them to the air-gapped machine using removable media.
 
-But suppose that on this system we only ran `kubectl` when using versions `1.24.3` and `1.21.14`. This means that
-the `~/.kuberlr/PLATFORM-ARCH/` directory (`$env:HOMEDRIVE%\$env:HOMEPATH/.kuberlr/windows-amd64` on Windows) will contain only two files:
+### Step 1: Populate the `k3s` Cache
 
-- kubectl1.24.3
+On the machine with internet access, create a directory to store the k3s files. For each version of Kubernetes you want to use offline, you will need to download the following files from the [k3s releases page](https://github.com/k3s-io/k3s/releases):
 
-- kubectl1.21.14
+-   The k3s air-gap container images (`k3s-airgap-images-amd64.tar` or `k3s-airgap-images-arm64.tar`).
+-   The `k3s` executable.
+-   The `sha256sum-amd64.txt` or `sha256sum-arm64.txt` file.
 
-If we go offline and use the UI to switch to Kubernetes `1.29.7`, when `kubectl` is run, the system will fail.
-The problem is that `kubectl` is an alias for `kuberlr`, which will try to download `kubectl 1.29.7` and install it
-in the `.kuberlr` directory, but won't be able to access it.
+You will also need the `k3s-versions.json` file from the [Rancher Desktop repository](https://raw.githubusercontent.com/rancher-sandbox/rancher-desktop/main/resources/k3s-versions.json).
 
-So in this case, it would be best to prepare a connected system for disconnecting by selecting each available version of 
-Kubernetes currently in the cache, and running `kubectl --context rancher-desktop cluster-info` to ensure that an appropriate
-version of the `kubectl` client is installed.
+Here is an example of the commands to download the necessary files for k3s v1.24.3:
 
-You _could_ install versioned `kubectl`s manually. This is covered in the next section.
+```bash
+# Create a directory for the k3s files
+mkdir -p <source-disk>/k3s/v1.24.3+k3s1
+cd <source-disk>/k3s/v1.24.3+k3s1
 
-### Preparing an Air-Gapped System
-
-Here we assume you have some kind of removable media which you can populate on an internet-connected system, and then move over to the air-gapped system.
-
-There are two directories that need to be populated in order for Rancher Desktop to function off-line:
-
-#### The Cache Directory
-
-To populate a source disk (which we refer to here as `%SOURCEDISK%`, although it is probably some kind of removable medium like a USB thumb drive), you need the following files:
-
-* `k3s-versions.json` -- Rancher Desktop ships with a copy of this file that is up-to-date on the release date of the app. It will update it with new `k3s` versions as they become available. You can download the latest version from the GitHub repo (see sample commands below), or edit an existing file to add additional `k3s` versions. If all your offline `k3s` versions are named in the bundled `k3s-versions.json` file, then you don't need to include this file at all.
-* Tar archives of Kubernetes K3s images. These are listed at https://github.com/k3s-io/k3s/releases. You'll want to download either the `k3s-airgap-images-amd64.tar` for AMD/Intel machines, `k3s-airgap-images-arm64.tar` for M1 machines, or the respective `*.tar.zst` compressed tarball if you are using `k3s` v1.26.1 and above. Finally you'll need to download the `k3s` executable for the selected version. For example, the following commands will let you work with K3s v1.24.3 build 1 offline:
-
-```
-cd .../CACHE
-wget https://raw.githubusercontent.com/rancher-sandbox/rancher-desktop/refs/heads/main/resources/k3s-versions.json
-mkdir v1.24.3+k3s1
-cd v1.24.3+k3s1
+# Download the files
 wget https://github.com/k3s-io/k3s/releases/download/v1.24.3%2Bk3s1/k3s-airgap-images-amd64.tar
 wget https://github.com/k3s-io/k3s/releases/download/v1.24.3%2Bk3s1/sha256sum-amd64.txt
 wget https://github.com/k3s-io/k3s/releases/download/v1.24.3%2Bk3s1/k3s
+
+# Download the k3s versions file
+cd ..
+wget https://raw.githubusercontent.com/rancher-sandbox/rancher-desktop/main/resources/k3s-versions.json
 ```
+
+Once you have downloaded all the necessary files, transfer them to the air-gapped machine. Then, on the air-gapped machine, copy the files to the Rancher Desktop cache directory.
 
 <Tabs groupId="os" defaultValue={TabsConstants.defaultOs}>
-  <TabItem value="Windows">
+<TabItem value="Windows">
 
-On Windows, the cache directory is at `$env:HOMEDRIVE%\$env:HOMEPATH\AppData\Local\rancher-desktop\cache\k3s`, and can be created with the command
+**Cache Location:** `$env:HOMEDRIVE\$env:HOMEPATH\AppData\Local\rancher-desktop\cache`
 
+**Commands:**
+```powershell
+# Create the cache directory
+mkdir -Force $env:HOMEDRIVE\$env:HOMEPATH\AppData\Local\rancher-desktop\cache\k3s
+
+# Copy the files
+copy-item -Force <source-disk>\k3s\k3s-versions.json $env:HOMEDRIVE\$env:HOMEPATH\AppData\Local\rancher-desktop\cache\
+copy-item -Recurse -Force <source-disk>\k3s\v* $env:HOMEDRIVE\$env:HOMEPATH\AppData\Local\rancher-desktop\cache\k3s\
 ```
-mkdir -Force $env:HOMEDRIVE%\$env:HOMEPATH\AppData\Local\rancher-desktop\cache\k3s
-```
 
-Assuming you have some source media, you would also run the following commands to pre-populate the cache:
+</TabItem>
+<TabItem value="macOS">
 
-```
-copy-item -Force $env:SOURCEDISK\k3s-versions.json $env:HOMEDRIVE%\$env:HOMEPATH\AppData\Local\rancher-desktop\cache\
-copy-item -Recurse -Force $env:SOURCEDISK\v<MAJOR>.<MINOR>.<PATCH>+k3s<BUILD> $env:HOMEDRIVE%\$env:HOMEPATH\AppData\Local\rancher-desktop\cache\k3s\
-```
+**Cache Location:** `~/Library/Caches/rancher-desktop`
 
-  </TabItem>
-  <TabItem value="macOS">
-
-On macOS, the cache directory is at `~/Library/Caches/rancher-desktop` and the commands to populate it would be
-
-```
+**Commands:**
+```bash
 CACHEDIR=~/Library/Caches/rancher-desktop
 mkdir -p $CACHEDIR/k3s
-cp $SOURCEDISK/k3s-versions.json $CACHEDIR/
-cp -r $SOURCEDISK/v<MAJOR>.<MINOR>.<PATCH>+k3s<BUILD> $CACHEDIR/k3s/
+cp <source-disk>/k3s/k3s-versions.json $CACHEDIR/
+cp -r <source-disk>/k3s/v* $CACHEDIR/k3s/
 ```
 
-  </TabItem>
-  <TabItem value="Linux">
+</TabItem>
+<TabItem value="Linux">
 
-On Linux, the cache directory is at `~/.cache/rancher-desktop` and the commands to populate it would be
+**Cache Location:** `~/.cache/rancher-desktop`
 
-```
+**Commands:**
+```bash
 CACHEDIR=~/.cache/rancher-desktop
 mkdir -p $CACHEDIR/k3s
-cp $SOURCEDISK/k3s-versions.json $CACHEDIR/
-cp -r $SOURCEDISK/v<MAJOR>.<MINOR>.<PATCH>+k3s<BUILD> $CACHEDIR/k3s/
+cp <source-disk>/k3s/k3s-versions.json $CACHEDIR/
+cp -r <source-disk>/k3s/v* $CACHEDIR/k3s/
 ```
 
-  </TabItem>
+</TabItem>
 </Tabs>
 
-#### The kuberlr Directory
+### Step 2: Populate the `kuberlr` Directory
 
-The location of this directory is more straightforward. On all platforms, it's at `HOME/.kuberlr/PLATFORM-ARCH` where:
+Next, you will need to populate the `kuberlr` directory with the `kubectl` executables for each Kubernetes version you plan to use.
 
-- `HOME` is the home directory: usually `$env:HOMEDRIVE%\$env:HOMEPATH` on Windows, and `~` or `$HOME` on macOS and Linux.
-- `PLATFORM` is one of `windows`, `linux`, or `darwin`.
-- `ARCH` is `aarch64` on M1 machines, and `amd64` everywhere else.
+The `kuberlr` directory is located at `HOME/.kuberlr/PLATFORM-ARCH`, where:
 
-To populate it, determine which versions of Kubernetes you'll be using, and download the appropriate executables from the internet. These would be in:
+-   `HOME` is your home directory.
+-   `PLATFORM` is `windows`, `linux`, or `darwin`.
+-   `ARCH` is `amd64` or `aarch64`.
 
-<Tabs groupId="os" defaultValue={TabsConstants.defaultOs}>
-  <TabItem value="Windows">
+On the machine with internet access, download the required `kubectl` executables from `https://dl.k8s.io/VERSION/bin/PLATFORM/ARCH/kubectl`. For example, to download `kubectl` v1.22.1 for Windows, you would use the following URL: `https://dl.k8s.io/v1.22.1/bin/windows/amd64/kubectl.exe`.
 
-`https://dl.k8s.io/VERSION/bin/PLATFORM/CPU/kubectl.exe`
+After downloading the executables, rename them to `kubectl<VERSION>` (e.g., `kubectl1.22.1.exe`) and copy them to the `kuberlr` directory on the air-gapped machine.
 
-  </TabItem>
-  <TabItem value="macOS">
-
-`https://dl.k8s.io/VERSION/bin/PLATFORM/CPU/kubectl`
-
-  </TabItem>
-    <TabItem value="Linux">
-
-`https://dl.k8s.io/VERSION/bin/PLATFORM/CPU/kubectl`
-
-  </TabItem>
-</Tabs>
-
-Where:
-
-- `VERSION` will have the form `vMAJOR.MINOR.PATCH` (like `v1.22.1`),
-- `PLATFORM` will be one of `darwin`, `linux`, or `windows`,
-- `CPU` will `arm64` on M1 machines and `amd64` everywhere else.
-
-For example, to get a kubectl for Windows that will work with Kubernetes v1.22, this Windows command-shell (not PowerShell) command will put it on the `SOURCEDISK`:
-
-```
-wget -O %SOURCEDISK/kubectl1.22.1.exe https://dl.k8s.io/v1.22.1/bin/windows/amd64/kubectl.exe
-```
-
-##### A Note on Versions
-
-Kubectl clients are guaranteed to work with servers that are running the same MAJOR version and differ in the MINOR version by at most 1. So for example, if your organization is working with Kubernetes versions v1.21.x, v1.22.x, and v1.23.x, for any patch-version of `x`, you would only need to install `kubectl1.22.x` in the `.kuberlr` directory. But if you copy a `v1.24.x` of Kubernetes into the `CACHE` directory, you'll need to ensure there's a compatible `kubectl` in the `.kuberlr` directory as well (any of `v1.23.x`, `v1.24.x`, or `v1.25.x` would suffice). 
+:::note
+A `kubectl` client is guaranteed to work with a Kubernetes server that is running the same major version and is within one minor version (plus or minus). For example, if you are using Kubernetes versions `v1.21.x`, `v1.22.x`, and `v1.23.x`, you only need to install a `v1.22.x` version of `kubectl`.
+:::
