@@ -2,305 +2,219 @@
 title: Working with LLMs using Open WebUI
 ---
 
-The **Rancher Desktop Open WebUI extension** provides an easy-to-install setup, comprising the components listed below, for local GenAI use and development.
+The **Open WebUI extension** for Rancher Desktop provides an easy-to-install package for local AI and Large Language Model (LLM) development. It includes the following components:
 
-- [Ollama](https://ollama.com/) to pull, run, and fine-tune open-source LLMs
-- [Open WebUI](https://openwebui.com/) to chat with the LLMs, use custom knowledge, web search, etc., via a feature rich Graphical User Interface (GUI)
-- A lightweight LLM called [tinyllama](https://ollama.com/library/tinyllama) to enable you to kickstart your LLM exploration
-- [SearXNG](https://github.com/searxng/searxng) for web search, to enhance retrieval augmented generation (RAG) results
-- [mcpo](https://github.com/open-webui/mcpo) to run [Model Context Protocol (MCP)](https://modelcontextprotocol.io/introduction) servers in a container
+-   **[Ollama](https://ollama.com/):** For pulling, running, and fine-tuning open-source LLMs.
+-   **[Open WebUI](https://openwebui.com/):** A feature-rich user interface for interacting with LLMs.
+-   **[tinyllama](https://ollama.com/library/tinyllama):** A lightweight LLM to help you get started quickly.
+-   **[SearXNG](https://github.com/searxng/searxng):** A metasearch engine to enhance Retrieval-Augmented Generation (RAG) with live web search results.
+-   **[mcpo](https://github.com/open-webui/mcpo):** For running Model Context Protocol (MCP) servers in a container.
 
-## Installing the Open WebUI extension
+## Installing the Open WebUI Extension
 
-:::important
-The Open WebUI extension depends on the host machine's ports 11434, 11500 and 11505 for the Ollama, Open WebUI, and the SearXNG services respectively. Please ensure other applications or services on your machine do not occupy these host ports.
-:::
+### Prerequisites
 
-### Minimum Requirements
+-   **Rancher Desktop:** Version 1.17 or newer.
+-   **Disk Space:** At least 7 GB available.
+-   **Memory:** 16 GB RAM is recommended for optimal performance.
+-   **Ports:** The extension requires host ports `11434`, `11500`, and `11505` to be available for the Ollama, Open WebUI, and SearXNG services, respectively.
 
-In addition to the general Rancher Desktop [installation requirements](../getting-started/installation.md), you should meet the requirements listed below for the Open WebUI extension. 
+### Installation Steps
 
-- Rancher Desktop version 1.17 or above
-- 7 GB available disk space
-- 16 GB RAM (recommended)
+You can install the Open WebUI extension from the Extensions Catalog in the Rancher Desktop UI or by using the `rdctl` command-line tool.
 
-### Steps to install
-
-You can install the Open WebUI extension via the [Extensions Catalog](../ui/extensions.md#catalog) GUI or via the [rdctl CLI](../references/rdctl-command-reference.md#rdctl-extension-install).
-
-:::caution
-Please note that the installation process can take several minutes depending on your internet speed, machine performance etc. 
-:::
+> **Note:** The installation process may take several minutes, depending on your internet connection and machine performance.
 
 <Tabs groupId="container-runtime">
-  <TabItem value="Extension Catalog (GUI)" default>
+<TabItem value="Extensions Catalog (GUI)" default>
 
-    Installing the Open WebUI extension is simple. 
-
-    - Navigate to the `Extensions` page
-    - Install the Open WebUI extension
+1.  In the Rancher Desktop UI, navigate to the **Extensions** page.
+2.  From the **Catalog** tab, find the **Open WebUI** extension and click **Install**.
 
     ![](../img/working-with-open-webui/install-extension.png)
 
-  </TabItem>
-  <TabItem value="CLI">
+</TabItem>
+<TabItem value="CLI">
 
-Run the command below to install the extension.
+Run the following command to install the extension:
 
-```
+```bash
 rdctl extension install ghcr.io/rancher-sandbox/rancher-desktop-rdx-open-webui:latest
 ```
 
-:::caution
-It is recommended to use a specific release tag of the extension instead of the `latest` tag as your Rancher Desktop version may not have features that the `latest` tag depends on. You can find the release tag names on the [GitHub Tags page](https://github.com/rancher-sandbox/rancher-desktop-rdx-open-webui/tags)
-:::
+> **Caution:** We recommend using a specific release tag instead of `latest` to ensure compatibility with your version of Rancher Desktop. You can find available release tags on the [GitHub Tags page](https://github.com/rancher-sandbox/rancher-desktop-rdx-open-webui/tags).
 
-  </TabItem>
+</TabItem>
 </Tabs>
 
-:::note
-- The extension will skip the Ollama installation if it is already available on your machine in the default installation location. Otherwise, it downloads and installs Ollama into the extension's installation directory.
-- Ollama will utilize the host machine's GPU to run inferences if the host has an NVIDIA GPU and the respective drivers, or an Apple CPU.
-:::
+> **A Note on Ollama:**
+>
+> -   If Ollama is already installed on your machine in the default location, the extension will use the existing installation. Otherwise, it will be installed into the extension's directory.
+> -   Ollama will automatically use the GPU on machines with an NVIDIA GPU (and the necessary drivers) or an Apple Silicon CPU.
 
 ## Using Open WebUI
 
-This section provides information and instructions to help you navigate some of Open WebUI's most commonly used features. For up-to-date information about the full capabilities and usage instructions, please refer to the [Open WebUI documentation](https://docs.openwebui.com).
+This section provides an overview of the most commonly used features in Open WebUI. For more detailed information, please refer to the [official Open WebUI documentation](https://docs.openwebui.com).
 
-### Pulling Ollama Open Source LLMs
+### Managing Models
 
-The extension provides a lightweight LLM called [tinyllama](https://ollama.com/library/tinyllama) out of the box that you can use to start your LLM exploration. Tinyllama is a basic language model good enough to try out simpler text generation and summarization tasks. If you want to perform more advanced tasks, then you need to download bigger models such as llama, mistral, gemma, etc.
+#### Pulling Models from the Ollama Library
 
-You can pull Ollama models via the `Admin Panel > Settings > Connections` page. Simply enter the name:tag of the model you want to pull and click on the `pull` button. You can find the full list of available models on the [Ollama Models Library page](https://ollama.com/library).
+The Open WebUI extension comes with `tinyllama`, a lightweight LLM that is perfect for getting started. For more advanced tasks, you will want to download more powerful models, such as Llama, Mistral, or Gemma.
+
+You can pull models from the [Ollama Models Library](https://ollama.com/library) directly from the Open WebUI dashboard:
+
+1.  Navigate to **Admin Panel > Settings > Connections**.
+2.  In the "Pull a model from Ollama.com" field, enter the name and tag of the model you want to download (e.g., `llama3:latest`).
+3.  Click the **Pull** button.
 
 ![](../img/working-with-open-webui/pulling-models.png)
 
-### Using GGUF models from Huggingface
+#### Using GGUF Models from Hugging Face
 
-GGUF (Generic GPT Unified Format) is a binary format that is optimized for quick loading and saving of models, making it highly efficient for inference purposes. You can learn more about the format on this [Huggingface docs page](https://huggingface.co/docs/hub/gguf).
+GGUF (GPT-Generated Unified Format) is a binary format that is optimized for fast loading and efficient inference. You can easily use GGUF models from Hugging Face with Ollama.
 
-Recent developments from Ollama and Huggingface make it very simple to use `GGUF` models from Huggingface with Ollama. Follow the steps below to pull a `GGUF` model in the Open WebUI GUI.
+1.  Find a model in GGUF format on Hugging Face and navigate to its page.
+2.  Click the **Use this model** button and select **Ollama**.
+3.  From the dialog that appears, copy the full model name and tag (e.g., `hf.co/QuantFactory/Ministral-3b-instruct-GGUF:Q4_K_M`).
 
-- Select a model in `GGUF` format on Huggingface and navigate to the model's page.
-- On the page, Click on the `Use this model` button and select `Ollama` in the menu.
-- From the pop-up dialog, take the full model name along with the tag. For example, the full model name shown in the image below is `hf.co/QuantFactory/Ministral-3b-instruct-GGUF:Q4_K_M`.
+    > **Tip:** The `Q4_K_M` quantization of GGUF models generally provides a good balance between size and performance for local use.
 
-:::tip
-Pick the `Q4_K_M` quantization of the `GGUF` models on Huggingface, as this variant generally seems to strike a good balance between the model size and the performance for local usage.
-:::
+    ![](../img/working-with-open-webui/gguf-model-page-hf.png)
 
-![](../img/working-with-open-webui/gguf-model-page-hf.png)
+4.  In the Open WebUI dashboard, navigate to **Admin Panel > Settings > Connections**.
+5.  Paste the full model name into the "Pull a model" field and click the **Pull** button.
 
-- Navigate to the Models page in the Open WebUI, `Admin Panel > Settings > Connections`.
-- Enter the full model name in the `Pull a model from Ollama.com` field and click on the download button. Once the model is downloaded, you can use it with the Chat and the Playground features.
+    ![](../img/working-with-open-webui/download-gguf-from-hf.png)
 
-![](../img/working-with-open-webui/download-gguf-from-hf.png)
+#### Using OpenAI-Compatible APIs
 
-### Using OpenAI-compatible APIs
+You can also connect to OpenAI-compatible APIs from local servers (e.g., [LocalAI](https://localai.io/), [llamafile](https://github.com/Mozilla-Ocho/llamafile)) or cloud providers (e.g., [Groq](https://groq.com/), [OpenAI](https://openai.com/api/)).
 
-You can use OpenAI-compatible APIs from a local server such as [localai](https://localai.io/), [llamafile](https://github.com/Mozilla-Ocho/llamafile), or cloud providers such as [Groq](https://groq.com/), [OpenAI](https://openai.com/api/), etc.
+For example, to connect to the Groq API:
 
-For example, you can set up the OpenAI-compatible API from [Groq](https://groq.com/) by following the steps below:
+1.  Create a Groq Cloud account at https://console.groq.com.
+2.  Generate an API key from the API Keys page.
+3.  In the Open WebUI dashboard, navigate to **Admin Panel > Settings > Connections**.
+4.  Add Groq as an OpenAI-compatible API provider, using `https://api.groq.com/openai/v1` as the base URL and the API key you generated.
 
-- Create a Groq cloud account at https://console.groq.com.
-- Create an API key at https://console.groq.com/keys.
-- Navigate to `Admin Panel > Settings > Connections` in the Open WebUI extension and add Groq as an OpenAI-compatible API provider. Use `https://api.groq.com/openai/v1` as the base URL and use the API key generated in the previous step.
-
-You should be able to see the available models from Groq in the model selector drop-down.
+You will now be able to select and use models from Groq in the model selector dropdown.
 
 ![](../img/working-with-open-webui/openai-api-setting.png)
-
 ![](../img/working-with-open-webui/groq-models-list.png)
 
 ### Interacting with the local LLMs
 
-Open WebUI provides a couple of GUI features to let you interact with the local LLMs.
+### Interacting with LLMs
+
+Open WebUI provides two main interfaces for interacting with LLMs: the Chat interface and the Playground.
 
 #### Chat Interface
 
-Open WebUI provides a ChatGPT-style chat interface to interact with the local LLMs. 
-
-- Select the LLM you want to interact with in the LLM selector dropdown. 
-
-:::tip
-- Set your preferred LLM model as default to persist the model selection between Rancher Desktop's restarts.
-- You can interact with multiple models at the same time. You can select multiple LLM models using the `+` button next to the model selector dropdown. 
-:::
-
-- You can now chat with the LLM using the chat interface.
+The Chat interface provides a familiar, ChatGPT-style experience for interacting with your local LLMs. You can select the model you want to use from the dropdown menu. You can also select multiple models to interact with them simultaneously by clicking the `+` button next to the model selector.
 
 ![](../img/working-with-open-webui/multi-model-chat.png)
 
-One of the interesting features of the OpenWebUI's chat interface is that when the chat response contains HTML, CSS, and JS code snippets, a live preview of the code is generated, which you can also interactively update by modifying and saving the code in the code snippets.
+A unique feature of the Open WebUI chat interface is its ability to render a live preview of HTML, CSS, and JavaScript code snippets included in a chat response.
 
 ![](../img/working-with-open-webui/live-html-preview.png)
 
 #### Playground Interface
 
-The Playground functionality provides Chat and Text Completion features to interact with the local LLMs. You can select a LLM to interact with in the LLM selector dropdown on the Playground screen.
-
-Using the Playground's Chat feature, you can provide a system prompt to let the LLM generate responses in a certain way or in a specific context.
+The Playground provides a more advanced interface for interacting with LLMs, with separate features for Chat and Text Completion. In the Playground, you can provide a system prompt to guide the LLM's responses or use the text completion feature to have the LLM complete an initial prompt.
 
 ![](../img/working-with-open-webui/playground-chat.png)
-
-Using the Playground's Sentence Completion feature, you can provide the initial prompt text and let the LLM complete the provided prompt.
-
 ![](../img/working-with-open-webui/playground-sentence-completion.png)
 
-### Adjusting LLM parameters
+### Customizing Model Behavior
 
-Ollama provides flexibility for adjusting LLM parameters to fine-tune model performance for specific tasks. Open WebUI makes it easy to apply the LLM parameters and customize the system prompt at different levels (per-chat basis, per-model basis, and per-account basis) as Chat Parameters. Refer to the [Open WebUI documentation](https://docs.openwebui.com) to learn about the different levels you can apply the chat parameters and their overriding behavior.
-
-:::info
-Refer to [Ollama Model File documentation](https://github.com/ollama/ollama/blob/main/docs/modelfile.md#parameter) for the full list of LLM parameters, their intended purpose, and example usage.
-:::
-
-For example, you can use the sliding control panel on the right to set the system prompt and adjust LLM parameters at the individual chat level.
+You can customize the behavior of your models by adjusting LLM parameters and providing a custom system prompt. These settings can be applied on a per-chat, per-model, or per-account basis. For a complete list of available parameters, please refer to the [Ollama Model File documentation](https://github.com/ollama/ollama/blob/main/docs/modelfile.md#parameter).
 
 ![](../img/working-with-open-webui/setting-chat-parameters.png)
 
-### Augmenting LLMs with Custom Knowledge & Web Search
+### Retrieval-Augmented Generation (RAG)
 
-Open WebUI provides features to augment LLM responses using the Retrieval Augmented Generation (RAG) technique. You can provide custom knowledge to the LLM via.  Knowledge Collections and/or Web Search.
+Open WebUI supports Retrieval-Augmented Generation (RAG), which allows you to augment LLM responses with custom knowledge from local documents or live web search results.
 
 #### Knowledge Collections
-You can create knowledge collections by simply uploading documents containing your custom knowledge. You can access the Knowledge Collections management page via `Workspace > Knowledge`.
+
+You can create knowledge collections by uploading your own documents. To manage your knowledge collections, navigate to **Workspace > Knowledge**.
 
 ![](../img/working-with-open-webui/knowedge-collections.png)
 
-#### Web Search
-
-In addition to using local knowledge collections, Open WebUI allows you to perform LIVE web searches to retrieve relevant information to generate better responses. Please refer to the [Open WebUI documentation](https://docs.openwebui.com) to learn about the available web search providers.
-
-Rancher Desktop's Open WebUI extension installs and configures [SearXNG](https://docs.searxng.org/), a free internet metasearch engine, to enable you use web search out of the box. 
-
-#### Using Knowledge Collections and/or Web Search in chats
-
-To use a Knowledge Collection in the chat, simply type `#` in the chat input field which shows the available knowledge collections on your machine. You can pick one or more knowledge collections as knowledge source(s) to retrieve relevant context.
-
-:::tip
-You can also include a web page's content in your conversations using the `#` command followed by the web page's URL.
-:::
+To use a knowledge collection in a chat, type `#` in the chat input field and select one or more collections from the list. You can also include the content of a web page by typing `#` followed by the URL.
 
 ![](../img/working-with-open-webui/selecting-knowedge-collections.png)
 
-To use the web search in the chat, click the `+` button to the left of the chat input field and enable the web search feature. This allows the chat to perform a web search to get relevant information and generate responses.
+#### Web Search
+
+The Open WebUI extension includes SearXNG, a metasearch engine that allows you to augment LLM responses with live web search results. To use web search in a chat, click the `+` button to the left of the chat input field and enable the **Web Search** option.
 
 ![](../img/working-with-open-webui/enabling-web-search.png)
 
-:::tip
-You can use both Knowledge Collections and Web Search to augment the LLM's response to a single question.
-:::
-
-:::info
-Open WebUI provides advanced configuration to fine-tune the Retrieval Augmented Generation process, which allows you to use alternate embedding models, provide a more suitable prompt template, configure the chunk parameters, and much more. You can perform this advanced configuration on the `Admin Panel > Settings > Documents` page. To learn more, refer to the [Open WebUI documentation](https://docs.openwebui.com).
-:::
+> **Tip:** You can use both knowledge collections and web search to augment the LLM's response to a single prompt.
 
 ### Customizing Models
 
-Open WebUI provides features to let you customize the downloaded models for your specific domain, use cases, etc. You can customize models on the `Workspace > Models` page. You can create a model by extending one of the existing models. You can customize the models by tweaking the chat parameters, including knowledge collections, etc. The custom models created here can then be used with the Chat and Playground features.
+You can create custom models tailored to your specific needs by navigating to the **Workspace > Models** page. Here, you can extend existing models, tweak their parameters, and include knowledge collections. These custom models can then be used in the Chat and Playground interfaces.
 
 ![](../img/working-with-open-webui/customize-models.png)
 
-### Using Model Context Protocol (MCP)
+### Using the Model Context Protocol (MCP)
 
-[Model Context Protocol (MCP)](https://modelcontextprotocol.io/introduction) is an open standard introduced by [Anthropic](https://www.anthropic.com/) that aims to make connecting LLMs to tools and data sources as easy as plugging in a device. The Open WebUI extension includes an MCP-to-OpenAPI proxy called [mcpo](https://github.com/open-webui/mcpo), which takes an MCP tool server (which typically communicates via a local stdio interface) and exposes it as a standard RESTful OpenAPI endpoint. The extension also bundles 2 sample MCP servers, [mcp-server-docker](https://github.com/ckreiling/mcp-server-docker), [mcp-server-kubernetes](https://github.com/Flux159/mcp-server-kubernetes) that let you interact with the local container engine (dockerd(moby) only) and Kubernetes. You need to enable dockerd(moby) and/or Kubernetes to use the respective MCP server.
+The [Model Context Protocol (MCP)](https://modelcontextprotocol.io/introduction) is an open standard for connecting LLMs to external tools and data sources. The Open WebUI extension includes `mcpo`, an MCP-to-OpenAPI proxy, and two sample MCP servers for interacting with Docker and Kubernetes.
 
-#### Steps to enable the bundled MCP servers
+> **Note:** To use the Docker and Kubernetes MCP servers, you must have the `dockerd (moby)` runtime and Kubernetes enabled, respectively.
 
-- Navigate to the `Admin Panel > Settings > Tools` section.
-- Click on the `+` to add a new MCP server tool. 
-- Add the Docker MCP server.
-  - Add `http://host.docker.internal:11600/docker-mcp` in the URL field and leave the rest of fields to their defaults.
-- Add the Kubernetes MCP server.
-  - Add `http://host.docker.internal:11600/docker-mcp` in the URL field and leave the rest of fields to their defaults.
-- Navigate to `Admin Panel > Settings > Models` and click on the edit button (pencil icon) for the model you want to use. 
-- Under the `Advanced Params`, set the `Function Calling` paramater to `Native`.
-- On the same page, You should see `Docker-MCP` and `Kubernetes-Mcp-Server` under Tools. Select both of them.
-- Click `Save & Update` to save the changes.
-- Click on `New Chat` at the top left corner of the window. Select the model you just edited. 
-- Try a prompt such as `List my docker volumes in a table`
+#### Enabling the Bundled MCP Servers
 
+1.  Navigate to **Admin Panel > Settings > Tools**.
+2.  Click the `+` button to add a new MCP server tool.
+3.  Add the Docker MCP server with the URL `http://host.docker.internal:11600/docker-mcp`.
+4.  Add the Kubernetes MCP server with the URL `http://host.docker.internal:11600/kubernetes`.
+5.  Navigate to **Admin Panel > Settings > Models** and click the pencil icon to edit the model you want to use.
+6.  Under **Advanced Params**, set **Function Calling** to `Native`.
+7.  Under **Tools**, select the **Docker-MCP** and **Kubernetes-Mcp-Server** tools.
+8.  Click **Save & Update**.
+9.  Start a new chat with the model you just edited and try a prompt such as, `List my docker volumes in a table`.
 
-#### Steps to add MCP servers
+#### Adding New MCP Servers
 
-:::danger
-IMPORTANT: Don't install MCP servers that you don't trust
-:::
+You can add other MCP servers by editing the `config.json` file in the `mcpo` container.
 
-- You can try other MCP servers by adding the respective server configuration in the file `<extension-installation-dir>/compose/linux/mcpo/config.json`. You can find a number of community provided MCP servers on this page - https://github.com/modelcontextprotocol/servers.
+> **Important:** Do not install MCP servers from untrusted sources.
 
+1.  Find the `config.json` file in `<extension-installation-dir>/compose/linux/mcpo/config.json`.
+2.  Add the new server configuration to the `mcpServers` object.
+3.  Restart the `mcpo` container from the **Containers** page in the Rancher Desktop UI.
+4.  Follow the steps in the previous section to add the new MCP server as a tool in the Open WebUI dashboard. The URL for the new tool will be `http://host.docker.internal:11600/<mcp-server-name>`.
 
-- For example, you can add a community developed MCP server, [mcp-searxng](https://github.com/ihor-sokoliuk/mcp-searxng), to the config.json as shown below.
+## Uninstalling the Extension
 
-```
-{
-  "mcpServers": {
-    "docker-mcp": {
-      "command": "uvx",
-      "args": [
-        "docker-mcp"
-      ]
-    },
-    "kubernetes": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "kubernetes-mcp-server@latest"
-      ]
-    },
-    "searxng": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "mcp-searxng"
-      ],
-      "env": {
-        "SEARXNG_URL": "http://host.docker.internal:11505"
-      }
-    }
-  }
-}
-```
-- Restart the mcpo container to make it use the updated config.json. You can use Rancher Desktop's Containers page to stop and start the mcpo container.
+You can uninstall the Open WebUI extension from the Extensions Catalog in the Rancher Desktop UI or by using the `rdctl` command-line tool.
 
-- Finally, follow the steps provided in the previous section to add the new MCP server endpoint as a tool, and enable the tool for a desired model. The URL of the MCP server tool would be `http://host.docker.internal:11600/<mcp-server-name>`. You can find the MCP server's name on `http://localhost:11600/docs`
-
-
-:::note
-The MCP servers added to the config.json file are not persisted between Rancher Desktop restarts at this time.
-:::
-
-## Uninstalling the extension
-
-You can uninstall the Open WebUI extension via the [Extensions Catalog](../ui/extensions.md#catalog) GUI or using the [rdctl CLI](../references/rdctl-command-reference.md#rdctl-extension-install).
-
-:::note
-- Ollama, if installed by the extension, will be removed as part of the extension uninstallation process.
-- Ollama model files, stored at the locations listed below, are not removed as part of the extension uninstallation process, allowing for their reuse if desired. If you want to delete the model files, you need to delete the models folder manually.
-  - macOS & Linux: `~/.ollama/models`
-  - Windows: `%USERPROFILE%/.ollama/models`
-:::
+> **Note:**
+>
+> -   If Ollama was installed by the extension, it will be removed during the uninstallation process.
+> -   Ollama model files are not removed automatically. If you wish to delete them, you will need to manually delete the `~/.ollama/models` directory (on macOS and Linux) or the `%USERPROFILE%/.ollama/models` directory (on Windows).
 
 <Tabs groupId="container-runtime">
-  <TabItem value="Extension Catalog (GUI)" default>
+<TabItem value="Extensions Catalog (GUI)" default>
 
-    Installing the Open WebUI extension is simple. 
-
-    - Navigate to the `Extensions` page
-    - Remove the Open WebUI extension from either the `Catalog` or the `Installed` tab
+1.  In the Rancher Desktop UI, navigate to the **Extensions** page.
+2.  From either the **Catalog** or **Installed** tab, find the **Open WebUI** extension and click **Uninstall**.
 
     ![](../img/working-with-open-webui/uninstall-extension-from-catalog-tab.png)
-
     ![](../img/working-with-open-webui/uninstall-extension-from-installed-tab.png)
 
-  </TabItem>
-  <TabItem value="CLI">
+</TabItem>
+<TabItem value="CLI">
 
-Run the command below to uninstall the extension.
+Run the following command to uninstall the extension:
 
-```
+```bash
 rdctl extension uninstall ghcr.io/rancher-sandbox/rancher-desktop-rdx-open-webui:<tag>
 ```
-  </TabItem>
+
+</TabItem>
 </Tabs>

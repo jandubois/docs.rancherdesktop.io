@@ -8,193 +8,81 @@ title: Installing and Uninstalling Rancher Desktop Extensions
 
 import TabsConstants from '@site/core/TabsConstants';
 
-The **Extensions** feature introduced in the `v1.9.0-tech-preview` release enables you to use **Docker Desktop Extensions** within Rancher Desktop. The feature helps you extend Rancher Desktop's functionality to meet your additional needs. This guide will demonstrate how to install and uninstall Docker extensions in Rancher Desktop.
+Rancher Desktop's **Extensions** feature allows you to enhance the application's functionality by installing and using Docker Desktop Extensions. This guide will walk you through the process of installing and uninstalling extensions.
 
-### Prerequisites
+## Installing Extensions
 
-Rancher Desktop Extensions are available as part of release `v1.9.0-tech-preview` or later.
+You can install extensions either through the Rancher Desktop user interface or from the command line.
 
-### Installing Extensions
+### Using the UI
 
-There are two ways in which you can install extensions, a method using the UI and another using the `rdctl extension install` command.
+1.  In the main Rancher Desktop window, click on **Extensions** in the side menu.
+2.  In the **Catalog** tab, you can browse through the available extensions.
+3.  Click the **Install** button for the extension you wish to add.
 
 <Tabs groupId="os" defaultValue={TabsConstants.defaultOs}>
 <TabItem value="Windows">
 
-#### Using the UI
-
-Click **Extensions** from the main UI to navigate to the **Catalog** tab. Here you can search through extensions available for use which can be downloaded and installed using the **Install** button.
-
 ![](rd-versioned-asset://ui-main/Windows_Extensions.png)
-
-#### Using the Command Line
-
-We have also extended the `rdctl` command line in the `v1.9.0-tech-preview` release to install extensions. Please use the command below to install extensions:
-
-:::note
-
-The use of the `<tag>` parameter is optional.
-
-:::
-
-```
-rdctl extension install <image-id>:<tag>
-```
 
 </TabItem>
 <TabItem value="macOS">
 
-#### Using the UI
-
-Click **Extensions** from the main UI to navigate to the **Catalog** tab. Here you can search through extensions available for use which can be downloaded and installed using the **Install** button.
-
 ![](rd-versioned-asset://ui-main/macOS_Extensions.png)
-
-#### Using the Command Line
-
-We have also extended the `rdctl` command line in the `v1.9.0-tech-preview` release to install extensions. Please use the command below to install extensions:
-
-:::note
-
-The use of the `<tag>` parameter is optional.
-
-:::
-
-```
-rdctl extension install <image-id>:<tag>
-```
 
 </TabItem>
 <TabItem value="Linux">
 
-#### Using the UI
-
-Click **Extensions** from the main UI to navigate to the **Catalog** tab. Here you can search through extensions available for use which can be downloaded and installed using the **Install** button.
-
 ![](rd-versioned-asset://ui-main/Linux_Extensions.png)
-
-#### Using the Command Line
-
-We have also extended the `rdctl` command line in the `v1.9.0-tech-preview` release to install extensions. Please use the command below to install extensions:
-
-:::note
-
-The use of the `<tag>` parameter is optional.
-
-:::
-
-```
-rdctl extension install <image-id>:<tag>
-```
 
 </TabItem>
 </Tabs>
 
-### Uninstalling Extensions
+### Using the Command Line
 
-Additionally, there are two ways in which you can uninstall extensions, a method using the UI and another using the `rdctl extension uninstall` command.
+You can also use the `rdctl` command-line tool to install extensions.
+
+```bash
+rdctl extension install <image-id>:<tag>
+```
+
+> Note: The `<tag>` parameter is optional.
+
+## Uninstalling Extensions
+
+You can uninstall extensions either through the user interface or from the command line.
+
+### Using the UI
+
+You can uninstall an extension from either the **Catalog** tab or the **Installed** tab.
+
+-   From the **Catalog** tab, find the installed extension and click the **Uninstall** button.
+-   From the **Installed** tab, click the **Uninstall** button next to the extension you wish to remove.
 
 <Tabs groupId="os" defaultValue={TabsConstants.defaultOs}>
 <TabItem value="Windows">
-
-#### Using the UI
-
-Click **Extensions** from the main UI to navigate to the **Catalog** tab. On this view, you can search through the available extensions, and uninstall the already installed extensions. Extensions can also be uninstalled from the **Installed** tab by clicking the **Remove** button.
-
-<Tabs>
-<TabItem value="Catalog">
-
-![](rd-versioned-asset://ui-main/Windows_Extensions.png)
-
-</TabItem>
-<TabItem value="Installed">
 
 ![](rd-versioned-asset://ui-main/Windows_Extensions-Installed.png)
 
 </TabItem>
-</Tabs>
-
-#### Using the Command Line
-
-We have also extended the `rdctl` command line in the `v1.9.0-tech-preview` release to uninstall extensions. Please use the command below to uninstall extensions:
-
-:::note
-
-The use of the `<tag>` parameter is optional.
-
-:::
-
-```
-rdctl extension uninstall <image-id>:<tag>
-```
-
-</TabItem>
 <TabItem value="macOS">
-
-#### Using the UI
-
-Click **Extensions** from the main UI to navigate to the **Catalog** tab. On this view, you can search through the available extensions, and uninstall the already installed extensions. Extensions can also be uninstalled from the **Installed** tab by clicking the **Remove** button.
-
-<Tabs>
-<TabItem value="Catalog">
-
-![](rd-versioned-asset://ui-main/macOS_Extensions.png)
-
-</TabItem>
-<TabItem value="Installed">
 
 ![](rd-versioned-asset://ui-main/macOS_Extensions-Installed.png)
 
 </TabItem>
-</Tabs>
-
-#### Using the Command Line
-
-We have also extended the `rdctl` command line in the `v1.9.0-tech-preview` release to uninstall extensions. Please use the command below to uninstall extensions:
-
-:::note
-
-The use of the `<tag>` parameter is optional.
-
-:::
-
-```
-rdctl extension uninstall <image-id>:<tag>
-```
-
-</TabItem>
 <TabItem value="Linux">
-
-#### Using the UI
-
-Click **Extensions** from the main UI to navigate to the **Catalog** tab. On this view, you can search through the available extensions, and uninstall the already installed extensions. Extensions can also be uninstalled from the **Installed** tab by clicking the **Remove** button.
-
-<Tabs>
-<TabItem value="Catalog">
-
-![](rd-versioned-asset://ui-main/Linux_Extensions.png)
-
-</TabItem>
-<TabItem value="Installed">
 
 ![](rd-versioned-asset://ui-main/Linux_Extensions-Installed.png)
 
 </TabItem>
 </Tabs>
 
-#### Using the Command Line
+### Using the Command Line
 
-We have also extended the `rdctl` command line in the `v1.9.0-tech-preview` release to uninstall extensions. Please use the command below to uninstall extensions:
+To uninstall an extension from the command line, use the `rdctl extension uninstall` command:
 
-:::note
-
-The use of the `<tag>` parameter is optional.
-
-:::
-
-```
+```bash
 rdctl extension uninstall <image-id>:<tag>
 ```
 
-</TabItem>
-</Tabs>
+> Note: The `<tag>` parameter is optional.

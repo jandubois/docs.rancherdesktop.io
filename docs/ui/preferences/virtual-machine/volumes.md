@@ -9,9 +9,7 @@ title: Volumes (macOS & Linux)
 
 import TabsConstants from '@site/core/TabsConstants';
 
-## Mount Type
-
-### reverse-sshfs
+The **Volumes** tab allows you to configure how your local file system is mounted into the Rancher Desktop virtual machine on macOS and Linux.
 
 <Tabs groupId="os">
 <TabItem value="macOS">
@@ -26,62 +24,19 @@ import TabsConstants from '@site/core/TabsConstants';
 </TabItem>
 </Tabs>
 
-Users can enable the "[reverse-sshfs](https://github.com/lima-vm/lima/blob/master/docs/mount.md#reverse-sshfs)" mount type from the `Volumes` tab. This exposes the filesystem by running an SFTP server on the host. The host instance will then intitiate an SSH connection into the guest allowing it to connect to the SFTP server. This is the default mount type used in the application.
+### Mount Type
 
-### 9p
+You can choose from the following mount types:
 
-<Tabs groupId="os">
-<TabItem value="macOS">
+-   **reverse-sshfs:** The default mount type. This option exposes the file system by running an SFTP server on the host.
+-   **9p (Experimental):** This option uses QEMU's `virtio-9p-pci` devices to expose the file system.
+-   **virtiofs (Experimental):** This option uses the `virtiofs` shared directory device, which is implemented using Apple's `Virtualization.Framework`.
 
-![](rd-versioned-asset://preferences/macOS_virtualMachine_tabVolumes_9P.png)
+### 9p Options
 
-</TabItem>
-<TabItem value="Linux">
+When using the `9p` mount type, you can configure the following options:
 
-![](rd-versioned-asset://preferences/Linux_virtualMachine_tabVolumes_9P.png)
-
-</TabItem>
-</Tabs>
-
-:::caution warning
-
-This is an **experimental** setting.
-
-:::
-
-Users can enable the "[9p](https://www.kernel.org/doc/Documentation/filesystems/9p.txt)" mount type from the `Volumes` tab. This will expose the filesystem by using QEMU's `virtio-9p-pci` devices.
-
-* Cache Mode:
-Specifies a caching policy that has a default setting as `mmap`. The caching options are `[none, loose, fscache, mmap]`.
-
-* Memory Size In KiB:
-Users can specify the number of bytes to use for the "9p" packet size. The minimum value is 4 KiB and the default size is 128 KiB.
-
-* Protocol Version:
-Users can select the "9p" protocol version. The options include `[9p2000, 9p2000.u, 9p2000.L]` and the default protocol setting is `9p200.L`.
-
-* Security Model:
-Users can select a supported security model with options being `[passthrough, mapped-xattr, mapped-file, none]`. The default security setting value is `none`.
-
-### virtiofs
-
-<Tabs groupId="os">
-<TabItem value="macOS">
-
-![](rd-versioned-asset://preferences/macOS_virtualMachine_tabVolumes.png)
-
-</TabItem>
-<TabItem value="Linux">
-
-![](rd-versioned-asset://preferences/Linux_virtualMachine_tabVolumes.png)
-
-</TabItem>
-</Tabs>
-
-:::caution warning
-
-This is an **experimental** setting.
-
-:::
-
-Users can enable the [`virtiofs`](https://virtio-fs.gitlab.io/) mount type from the `Volumes` tab. This is implemented using the Apple `Virtualization.Framework` shared directory device.
+-   **Cache Mode:** Specifies the caching policy. The default is `mmap`.
+-   **Memory Size In KiB:** The packet size for `9p` messages. The default is `128` KiB.
+-   **Protocol Version:** The `9p` protocol version. The default is `9p2000.L`.
+-   **Security Model:** The security model to use. The default is `none`.

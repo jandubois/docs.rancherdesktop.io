@@ -6,207 +6,174 @@ title: Installation
   <link rel="canonical" href="https://docs.rancherdesktop.io/getting-started/installation"/>
 </head>
 
-Rancher Desktop is delivered as a desktop application. You can download it from
-the [releases page on GitHub](https://github.com/rancher-sandbox/rancher-desktop/releases).
+Rancher Desktop is available as a desktop application for Windows, macOS, and Linux. You can download it from the [releases page on GitHub](https://github.com/rancher-sandbox/rancher-desktop/releases).
 
-When run for the first time or when changing versions, Kubernetes container
-images are downloaded. It may take a little time to load on first run for a new
-Kubernetes version.
+When you run Rancher Desktop for the first time, or when you switch to a new version, it will download the necessary Kubernetes container images. This process may take a few moments, so please be patient during the initial startup.
 
-After Rancher Desktop is installed, users will have access to these supporting utilities:
+Once installed, Rancher Desktop provides access to several essential command-line utilities:
 
-- [Helm](https://helm.sh/)
-- [kubectl](https://kubernetes.io/docs/reference/kubectl/overview/)
-- [nerdctl](https://github.com/containerd/nerdctl)
-- [Moby](https://github.com/moby/moby)
-- [Docker Compose](https://docs.docker.com/compose/)
+- **Helm:** The package manager for Kubernetes.
+- **kubectl:** The command-line tool for interacting with Kubernetes clusters.
+- **nerdctl:** A Docker-compatible CLI for containerd.
+- **Moby:** The open-source container framework developed by Docker.
+- **Docker Compose:** A tool for defining and running multi-container Docker applications.
 
 ## macOS
 
 ### Requirements
 
-Rancher Desktop requires the following on macOS:
+To install Rancher Desktop on macOS, you will need:
 
-- macOS 13 (Ventura) or higher.
-- Apple Silicon (aarch64) or Intel (x86_64) CPU with VT-x.
-- Persistent internet connection.
+- **macOS:** Ventura (13) or newer.
+- **CPU:** Apple Silicon (aarch64) or Intel (x86_64) with VT-x support.
+- **Internet:** A persistent internet connection.
 
-It is also recommended to have:
+For optimal performance, we recommend:
 
-- 8 GB of memory
-- 4 CPU
+- **Memory:** 8 GB or more.
+- **CPU:** At least 4 cores.
 
-Additional resources may be required depending on the workloads you plan to run.
+Please note that you may need additional resources depending on the workloads you intend to run.
 
-### Installing Rancher Desktop on macOS
+### Installing on macOS
 
-1. Go to the [releases page] on GitHub.
-1. Find the version of Rancher Desktop you want to download.
-1. Expand the **Assets** section and download `Rancher.Desktop-X.Y.Z.dmg`, where `X.Y.Z` is the version of Rancher Desktop.
-1. Navigate to the directory where you downloaded the installer to and run the installer. This will usually be the `Downloads` folder.
-1. Double-click the DMG file.
-1. In the Finder window that opens, drag the Rancher Desktop icon to the Applications folder.
-1. Navigate to the `Applications` folder and double-click the Rancher Desktop to launch it.
+1. Visit the [releases page] on GitHub.
+2. Locate the version of Rancher Desktop you wish to download.
+3. In the **Assets** section, download the file named `Rancher.Desktop-X.Y.Z.dmg`, where `X.Y.Z` corresponds to the release version.
+4. Open the downloaded `.dmg` file from your `Downloads` folder.
+5. In the window that appears, drag the Rancher Desktop icon into your **Applications** folder.
+6. Launch Rancher Desktop from your **Applications** folder.
 
-[releases page]:
-https://github.com/rancher-sandbox/rancher-desktop/releases
+[releases page]: https://github.com/rancher-sandbox/rancher-desktop/releases
 
-After Rancher Desktop is installed, users will have access to these supporting utilities:
+### Uninstalling on macOS
 
-- [Helm](https://helm.sh/)
-- [kubectl](https://kubernetes.io/docs/reference/kubectl/overview/)
-- [nerdctl](https://github.com/containerd/nerdctl)
-- [docker (moby)](https://github.com/moby/moby)
-
-### Uninstalling Rancher Desktop on macOS
-
-1. Open **Finder** > **Applications**.
-1. Find Rancher Desktop.
-1. Select it and choose **File > Move to Trash**.
-1. To delete the app, Finder > Empty Trash.
+1. Open **Finder** and navigate to your **Applications** folder.
+2. Locate the Rancher Desktop application.
+3. Drag the application to the **Trash**, or right-click and select **Move to Trash**.
+4. To permanently remove the application, right-click the **Trash** icon in your dock and select **Empty Trash**.
 
 ## Windows
 
 ### Requirements
 
-Rancher Desktop requires the following on Windows:
+To install Rancher Desktop on Windows, you will need:
 
-- One of
-  - Windows 10 with latest updates. The Home edition is supported.
-  - Windows 11 with latest updates. The Home edition is supported.
-  - Windows 2022 Server with latest updates.
-- Running on a machine with [virtualization capabilities].
-- Persistent internet connection.
+- **Windows:**
+  - Windows 10 (Home edition is supported).
+  - Windows 11 (Home edition is supported).
+  - Windows Server 2022.
+- **Virtualization:** Your machine must have virtualization capabilities enabled.
+- **WSL:** [Windows Subsystem for Linux](https://aka.ms/wslinstall) must be installed.
+- **Internet:** A persistent internet connection.
 
-Rancher Desktop requires [Windows Subsystem for Linux] on Windows.  This must be
-installed prior to running the Rancher Desktop installer.
+For optimal performance, we recommend:
 
-[virtualization capabilities]:
-https://docs.microsoft.com/en-us/windows/wsl/troubleshooting#error-0x80370102-the-virtual-machine-could-not-be-started-because-a-required-feature-is-not-installed
+- **Memory:** 8 GB or more.
+- **CPU:** At least 4 cores.
 
-[Windows Subsystem for Linux]: https://aka.ms/wslinstall
+Please note that you may need additional resources depending on the workloads you intend to run.
 
-It is also recommended to have:
+**Note on User Privileges:** While you can use Rancher Desktop as a non-admin user, administrator privileges are required to install the **Rancher Desktop Privileged Service**. This service is necessary for exposing applications and services running in containers to all network interfaces on your host machine. If you choose not to install this service, you will be limited to exposing services on `127.0.0.1`.
 
-- 8 GB of memory
-- 4 CPU
+### Installing on Windows
 
-Additional resources may be required depending on the workloads you plan to run.
+1. Visit the [releases page] on GitHub.
+2. Locate the version of Rancher Desktop you wish to download.
+3. In the **Assets** section, download the Windows installer, `Rancher.Desktop.Setup.X.Y.Z.msi`, where `X.Y.Z` corresponds to the release version.
+4. Run the installer from your `Downloads` folder.
+5. Review the license agreement and click **I Agree** to continue.
+6. If prompted, choose whether to install for all users on the machine or only for the current user. Installing for all users is recommended to enable the Rancher Desktop Privileged Service.
+7. Follow the on-screen prompts to complete the installation.
+8. Once the installation is finished, click **Finish**.
 
-**Note:** You can use Rancher Desktop as a Non-Admin user on a Windows machine. However, an Admin's intervention is required during the installation process for the below components.
+[release page]: https://github.com/rancher-sandbox/rancher-desktop/releases
 
-- **Rancher Desktop Privileged Service** - You need Admin privileges to install the Rancher Desktop privileged service, which is required to expose applications/services, running inside containers, on all interfaces on the host machine. However, you can skip the installation of the Rancher Desktop Privileged Service with the limitation that you will not be able to expose applications/services on any interface except `127.0.0.1`.
+### Uninstalling on Windows
 
-### Installing Rancher Desktop on Windows
-
-1. Go to the [releases page] on GitHub.
-1. Find the version of Rancher Desktop you want to download.
-1. Expand the **Assets** section and download the Windows installer. It will be called `Rancher.Desktop.Setup.X.Y.Z.msi`, where `X.Y.Z` is the version of Rancher Desktop.
-1. Navigate to the directory where you downloaded the installer to and run the installer. This will usually be the `Downloads` folder.
-1. Review the License Agreement and click **I Agree** to proceed with the installation.
-1. If prompted, choose between installing for everyone on the machine or installing
-   just for the current user.  Installing for everyone is preferred in order to
-   install the Rancher Desktop Privileged Service, as noted above.
-1. Follow the prompts to confirm installation.
-1. When the installation completes, click **Finish** to close the installation wizard.
-
-[release page]:
-https://github.com/rancher-sandbox/rancher-desktop/releases
-
-### Uninstalling Rancher Desktop on Windows
-
-1. From the taskbar, click the **Start** menu.
-1. Go to **Settings > Apps > Apps & features**.
-1. Find and select the Rancher Desktop entry.
-1. Click **Uninstall** and click it again when the confirmation appears.
-1. Follow the prompts on the Rancher Desktop uninstaller to proceed.
-1. Click **Finish** when complete.
+1. Open the **Start** menu and go to **Settings > Apps > Apps & features**.
+2. Locate the Rancher Desktop entry in the list.
+3. Select it and click **Uninstall**. Confirm your choice when prompted.
+4. Follow the steps in the uninstaller wizard to remove Rancher Desktop.
+5. Click **Finish** to complete the process.
 
 ## Linux
 
 ### Requirements
 
-Rancher Desktop requires the following on Linux:
+To install Rancher Desktop on Linux, you will need:
 
-- A distribution that can install .deb or .rpm packages, or AppImages.
-- A persistent internet connection.
-- An x86_64 processor with either AMD-V or VT-x.
-- Read-write access on `/dev/kvm`. See below for details.
+- **Distribution:** A distribution that supports `.deb`, `.rpm`, or AppImage packages.
+- **CPU:** An x86_64 processor with AMD-V or VT-x support.
+- **Permissions:** Read and write access to `/dev/kvm`.
+- **Internet:** A persistent internet connection.
 
-It is also recommended to have:
+For optimal performance, we recommend:
 
-- 8 GB of memory
-- 4 CPU
+- **Memory:** 8 GB or more.
+- **CPU:** At least 4 cores.
 
-Additional resources may be required depending on the workloads you plan to run.
+Please note that you may need additional resources depending on the workloads you intend to run.
 
 :::note
-Some Linux distributions such as Ubuntu and Fedora that make use of Gnome do not support a system tray out of the box, and therefore no tray icon will be displayed for Rancher Desktop in these environments.
+Some Linux distributions that use GNOME, such as Ubuntu and Fedora, do not have out-of-the-box support for a system tray. As a result, the Rancher Desktop tray icon may not be displayed in these environments.
 :::
 
-#### Ensuring You Have Access to `/dev/kvm`
+### Linux Setup
 
-On some distributions (Ubuntu 18.04 for example) the user has insufficient
-privileges to use `/dev/kvm`, which is required for Rancher Desktop.
-To check whether you have the required privileges, do:
+Before installing Rancher Desktop, there are a few one-time setup steps you may need to perform.
+
+#### Access to `/dev/kvm`
+
+On some distributions, such as Ubuntu 18.04, users may not have sufficient privileges to use `/dev/kvm`, which is required by Rancher Desktop. To check if you have the necessary permissions, run the following command:
 
 ```
-[ -r /dev/kvm ] && [ -w /dev/kvm ] || echo 'insufficient privileges'
+[ -r /dev/kvm ] && [ -w /dev/kvm ] || echo 'Insufficient privileges'
 ```
 
-If it outputs `insufficient privileges`, you need to add your user to the
-`kvm` group. You can do this with:
+If the output is `Insufficient privileges`, you will need to add your user to the `kvm` group:
 
 ```
 sudo usermod -a -G kvm "$USER"
 ```
 
-Then reboot in order to make these changes take effect.
+After running this command, you must reboot your system for the changes to take effect.
 
+#### `pass` for Credential Management
 
-#### `pass` Setup
-
-By default, Rancher Desktop uses `pass` to securely store credentials
-passed via `docker login` and `nerdctl login`. `pass` requires a small amount
-of setup if this is the first time it has been used on your machine. If you don't
-intend to use `docker login` or `nerdctl login` you don't have to set up
-`pass` - just remember that if you use them in the future, you must set it
-up or you will run into errors.
-
-Once Rancher Desktop is installed, you should create a GPG key. This will be
-used by `pass` to secure secrets. You can create a GPG key with:
+Rancher Desktop uses `pass` to securely store credentials for `docker login` and `nerdctl login`. If you plan to use these commands, you will need to set up `pass`. If this is your first time using `pass`, you will need to generate a GPG key:
 
 ```
 gpg --generate-key
 ```
 
-The output should contain something like `8D818FB37A9279E341F01506ED96AD27A40C9C73`.
-This is your key ID. You can then initialize `pass` by passing this key ID to it:
+This command will output a key ID (e.g., `8D818FB37A9279E341F01506ED96AD27A40C9C73`). Use this ID to initialize `pass`:
 
 ```
-pass init 8D818FB37A9279E341F01506ED96AD27A40C9C73
+pass init <your-key-id>
 ```
 
-For more information on `pass`, please see [its website].
+For more information, please refer to the [official `pass` website][its website].
 
 [its website]: https://www.passwordstore.org/
 
+#### Traefik Port Binding
 
-#### Traefik Port Binding Access
-
-Rancher Desktop makes use of Traefik as the default ingress controller. Users may run into a `permission denied` error after deploying Rancher Desktop due to restricted port access on the Traefik ingress. Most Linux distributions (e.g. Ubuntu 20.04) do not allow non-root users to listen on TCP and UDP ports below `1024`. In order to allow Traefik to listen to privileged ports on the local host, please run the following command:
+Rancher Desktop uses Traefik as its default Ingress controller. On many Linux distributions, non-root users are not permitted to listen on TCP and UDP ports below 1024. This can cause a "permission denied" error for Traefik. To resolve this, you can run the following command to allow processes to bind to ports 80 and above:
 
 ```
 sudo sysctl -w net.ipv4.ip_unprivileged_port_start=80
 ```
 
-After the command is run, all ports `80` and above will become unprivileged and Traefik will be able to successfully access said ports.
+To make this change persistent across reboots, add the command to your `/etc/sysctl.conf` file.
 
-To preserve this change across reboots as a custom kernel parameter setting, add the same command inside your `/etc/sysctl.conf` file.
+### Installing and Uninstalling on Linux
 
-### Installation via .deb Package
+You can install Rancher Desktop on Linux using a `.deb` package, an `.rpm` package, or an AppImage.
 
-Add the Rancher Desktop repository and install Rancher Desktop with:
+#### .deb Package (Debian, Ubuntu)
+
+**Installation:**
 
 ```
 curl -s https://download.opensuse.org/repositories/isv:/Rancher:/stable/deb/Release.key | gpg --dearmor | sudo dd status=none of=/usr/share/keyrings/isv-rancher-stable-archive-keyring.gpg
@@ -215,10 +182,7 @@ sudo apt update
 sudo apt install rancher-desktop
 ```
 
-
-### Uninstalling .deb Package
-
-You can remove the package, repository, and key with:
+**Uninstallation:**
 
 ```
 sudo apt remove --autoremove rancher-desktop
@@ -227,82 +191,69 @@ sudo rm /usr/share/keyrings/isv-rancher-stable-archive-keyring.gpg
 sudo apt update
 ```
 
+#### .rpm Package (Fedora, openSUSE)
 
-### Installing via .rpm Package
-
-#### openSUSE
-
-To add the repository and install on openSUSE:
+**Installation on openSUSE:**
 
 ```
 sudo zypper addrepo https://download.opensuse.org/repositories/isv:/Rancher:/stable/rpm/isv:Rancher:stable.repo
 sudo zypper install rancher-desktop
 ```
 
-#### Fedora
-
-To add the repository and install on Fedora:
+**Installation on Fedora:**
 
 ```bash
-sudo dnf config-manager addrepo --from-repofile=https://download.opensuse.org/repositories/isv:/Rancher:/stable/fedora/isv:Rancher:stable.repo
+sudo dnf config-manager --add-repo https://download.opensuse.org/repositories/isv:/Rancher:/stable/fedora/isv:Rancher:stable.repo
 sudo dnf install rancher-desktop
 ```
 
 :::note
-
-The Fedora packages are not tested against RHEL and related distributions; please use the AppImage
-instead.
-
+The Fedora packages are not tested on RHEL or related distributions. We recommend using the AppImage for these systems.
 :::
 
-### Uninstalling .rpm Package
-
-Ensure that Rancher Desktop has exited (if not, it should appear in the dock) and do:
-
-#### openSUSE
+**Uninstallation on openSUSE:**
 
 ```
 sudo zypper remove --clean-deps rancher-desktop
 sudo zypper removerepo isv_Rancher_stable
 ```
 
-#### Fedora
+**Uninstallation on Fedora:**
 
 ```
 sudo dnf remove rancher-desktop
 sudo rm '/etc/yum.repos.d/isv:Rancher:stable.repo'
 ```
 
-### Installing via AppImage
+#### AppImage
 
-First, ensure that `pass` and `gpg` are installed. For example, on Rocky:
+**Installation:**
+
+First, ensure that `pass` and `gpg` are installed on your system. For example, on Rocky Linux:
 
 ```
-# Enabled EPEL following upstream documentation; this is elided here.
+# Enable EPEL if not already enabled.
 dnf install pass gnupg2
 ```
 
-You may download the AppImage [here]. In order to run it, simply make it executable
-and execute it. For better integration with your desktop, you may use [AppImageLauncher].
+Download the AppImage from the [releases page]. Make it executable, and then run it. For better desktop integration, consider using [AppImageLauncher].
 
-[here]:
-https://download.opensuse.org/repositories/isv:/Rancher:/stable/AppImage/rancher-desktop-latest-x86_64.AppImage
-[AppImageLauncher]:
-https://github.com/TheAssassin/AppImageLauncher
+[here]: https://download.opensuse.org/repositories/isv:/Rancher:/stable/AppImage/rancher-desktop-latest-x86_64.AppImage
+[AppImageLauncher]: https://github.com/TheAssassin/AppImageLauncher
 
+**Uninstallation:**
 
-### Uninstalling AppImage
+To uninstall, simply delete the AppImage file.
 
-Simply delete the AppImage. That's it!
+## Proxy Environments
 
-## Proxy Environments: Important URL Patterns
+If you are in a secure or locked-down environment, you may need to allow certain URLs through your proxy for Rancher Desktop to function correctly. Here is a list of essential URL patterns:
 
-There are situations where you may be using a secured, locked down internet environment and need to configure necessary Rancher Desktop dependencies through a proxy. Here is a list of key URL patterns you will need to allow through your proxy:
+- **K3s Releases:**
+  - `https://api.github.com/repos/k3s-io/k3s/releases` (for available versions)
+  - `https://github.com/k3s-io/k3s/releases/download` (for downloading releases)
+- **kubectl Releases:** `https://storage.googleapis.com/kubernetes-release/release` (for `kuberlr`)
+- **Upgrades:** `https://desktop.version.rancher.io/v1/checkupgrade`
+- **Documentation:** `https://docs.rancherdesktop.io` (for in-app help and online status checks)
 
-- Get available K3s releases for download: https://api.github.com/repos/k3s-io/k3s/releases
-- Download K3s releases: https://github.com/k3s-io/k3s/releases/download
-- `kubectl` releases downloaded by `kuberlr`: https://storage.googleapis.com/kubernetes-release/release
-- Check available upgrade versions: https://desktop.version.rancher.io/v1/checkupgrade
-- Access the documentation from the application help menu and help buttons; also used to check online status: https://docs.rancherdesktop.io
-
-These dependencies are specific to Rancher Desktop and do not represent a standard list across the Rancher platform.
+Please note that this list is specific to Rancher Desktop and may not cover all dependencies for the broader Rancher platform.

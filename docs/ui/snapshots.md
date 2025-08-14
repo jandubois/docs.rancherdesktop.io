@@ -9,6 +9,8 @@ title: Snapshots
 
 import TabsConstants from '@site/core/TabsConstants';
 
+The **Snapshots** tab allows you to create, restore, and delete snapshots of your Rancher Desktop environment. A snapshot captures the current state of your virtual machine, including all settings and configurations.
+
 <Tabs groupId="os" defaultValue={TabsConstants.defaultOs}>
 <TabItem value="Windows">
 
@@ -27,37 +29,34 @@ import TabsConstants from '@site/core/TabsConstants';
 </TabItem>
 </Tabs>
 
-:::caution warning
+Snapshots are stored in the `snapshots` directory in the following locations:
 
-This is an **experimental** feature.
+-   **macOS:** `~/Library/Application Support/rancher-desktop/snapshots`
+-   **Linux:** `~/.local/share/rancher-desktop/snapshots`
+-   **Windows:** `%LOCALAPPDATA%\rancher-desktop\snapshots`
 
-:::
+You can move the `snapshots` directory to a different location by creating a symbolic link from the default path to your preferred location.
 
-A snapshot can be used to store the current configuration of your virtual machine and all associated settings. Snapshots are stored in a `snapshots` directory which are created at the below paths respective to your operating system:
+### Creating a Snapshot
 
-- macOS: `~/Library/Application\ Support/rancher-desktop/snapshots`
-- Linux: `~/.local/share/rancher-desktop/snapshots`
-- Windows: `%LOCALAPPDATA%\rancher-desktop\snapshots`
+1.  Click the **Create Snapshot** button.
+2.  In the dialog that appears, enter a name and an optional description for your snapshot.
+3.  Click the **Create** button.
 
-The `snapshots` directory may be moved by creating a symlink from your system's default path to your preferred location.
+> **Note:** Rancher Desktop will be unavailable while the snapshot is being created.
 
-### Snapshot Management
+### Restoring a Snapshot
 
-The following actions can be taken on the tab:
+1.  From the list of snapshots, select the one you want to restore.
+2.  Click the **Restore** button.
 
-- `Create Snapshot`:
-  You can choose to create a snapshot through the user interface from the Snapshots tab by clicking the `Create Snapshot` button. This will launch a dialog and provides a note alerting that Rancher Desktop will be unavailable during the creation of a new Snapshot.
-  - `Snapshot Name`:
-  Text can be entered into this field to name your snapshot.
-  - `Description`:
-  Text can be entered into the Description field that describes your snapshot.
+> **Note:** Restoring a snapshot will replace your current environment, including all settings and configurations. Rancher Desktop will be unavailable while the snapshot is being restored.
 
-- `Restore`:
-  The `Restore` button can be used to restore a snapshot and will replace your current snapshot installation including preference settings. Rancher Desktop will be unavailable while this process is running.
+### Deleting a Snapshot
 
-- `Delete`:
-  The `Delete` button can be used to remove snapshots permanently.
+1.  From the list of snapshots, select the one you want to delete.
+2.  Click the **Delete** button.
 
-### Command Line - `rdctl snapshot`
+### Using the Command Line
 
-All commands available through the user interface are also available using the `rdctl snapshot` command. Please see the [reference page](../references/rdctl-command-reference.md) for more information.
+You can also manage snapshots from the command line using the `rdctl snapshot` command. For more information, please refer to the [`rdctl` command reference](../references/rdctl-command-reference.md).

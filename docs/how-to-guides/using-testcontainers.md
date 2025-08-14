@@ -8,113 +8,65 @@ title: Using Testcontainers on Rancher Desktop
 
 import TabsConstants from '@site/core/TabsConstants';
 
-Rancher Desktop can be used with [Testcontainers](https://testcontainers.com/) to execute ephemeral tests and containers that work inside Docker. This guide demonstrates the use of Testcontainers with a sample repository.
+[Testcontainers](https://testcontainers.com/) is a powerful tool for writing ephemeral tests with real services in Docker containers. This guide will walk you through the process of setting up and using Testcontainers with Rancher Desktop.
 
 ### Prerequisites
 
-[Testcontainers](https://testcontainers.com/) can only be used with the `moby (dockerd)` runtime as it requires a Docker-API compatible container runtime. Kubernetes must be disabled for machines on Apple Silicon. The setting can be disabled via the **Preferences > Kubernetes** dialog, or by using the `rdctl` command below:
+-   **Container Runtime:** Testcontainers requires a Docker-API compatible container runtime. Please ensure that **moby (dockerd)** is selected as the container runtime in the Rancher Desktop UI.
+-   **Kubernetes (Apple Silicon only):** On Apple Silicon machines, you must disable Kubernetes. You can do this from the **Kubernetes Settings** panel or by running the following command:
+    ```bash
+    rdctl set --kubernetes-enabled=false
+    ```
+-   **Apache Maven:** Please ensure that [Apache Maven](https://maven.apache.org/install.html) is installed on your machine.
+
+### Step 1: Download the Sample Project
+
+This guide uses a sample Java project to demonstrate how to use Testcontainers. Clone the repository to your local machine:
 
 ```bash
-rdctl set --kubernetes-enabled=false
+git clone https://github.com/testcontainers/testcontainers-java-repro
 ```
 
- Please also ensure that [Apache Maven](https://maven.apache.org/install.html) is installed on your machine in order to make use of the [`mvn verify`](https://maven.apache.org/run-maven/index.html) command.
+### Step 2: Configure Your Environment (Apple Silicon Only)
 
-<Tabs groupId="os" defaultValue={TabsConstants.defaultOs}>
-<TabItem value="Linux">
+If you are using a Mac with Apple Silicon, you will need to perform some additional configuration steps.
 
-You can download a sample test repository in the `testcontainers-java-repro` located here: https://github.com/testcontainers/testcontainers-java-repro
+#### Using QEMU
 
-After the repository is downloaded, please navigate to the `testcontainers-java-repro` folder and run the command `mvn verify`.
+If you are using the QEMU virtual machine, you will need to enable administrative access and export the `TESTCONTAINERS_HOST_OVERRIDE` environment variable.
+
+1.  Enable administrative access in **Preferences > Application > General**.
+2.  Export the environment variable:
+    ```bash
+    export TESTCONTAINERS_HOST_OVERRIDE=$(rdctl shell ip a show rd0 | awk '/inet / {sub("/.*",""); print $2}')
+    ```
+
+#### Using VZ
+
+If you are using the VZ virtual machine, you have two options:
+
+-   **With Administrative Access:**
+    1.  Enable administrative access in **Preferences > Application > General**.
+    2.  Export the environment variable:
+        ```bash
+        export TESTCONTAINERS_HOST_OVERRIDE=$(rdctl shell ip a show vznat | awk '/inet / {sub("/.*",""); print $2}')
+        ```
+
+-   **Without Administrative Access:**
+    Export the following environment variables:
+    ```bash
+    export DOCKER_HOST=unix://$HOME/.rd/docker.sock
+    export TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE=/var/run/docker.sock
+    export TESTCONTAINERS_HOST_OVERRIDE=$(rdctl shell ip a show vznat | awk '/inet / {sub("/.*",""); print $2}')
+    ```
+
+### Step 3: Run the Tests
+
+Once you have configured your environment, navigate to the `testcontainers-java-repro` directory and run the tests using Maven:
 
 ```bash
+cd testcontainers-java-repro
 mvn verify
 ```
 
-After the command has been run, you should see a `BUILD SUCCESS` with test statistics for failures, number of tests ran, skipped tests, time elapsed, and errors.
-
-</TabItem>
-<TabItem value="macOS">
-
-You can download a sample test repository in the `testcontainers-java-repro` located here: https://github.com/testcontainers/testcontainers-java-repro
-
-<Tabs groupId="os">
-<TabItem value="Apple Silicon">
-
-Currently, workarounds are needed for using Testcontainers on macOS M1 machines. Below are methods for using Testcontainers on either runtime, depending on administrative access.
-
-#### [QEMU](../ui/preferences/virtual-machine/emulation.md#qemu)
-
-<details>
-<summary>Workaround Summary</summary>
-
-This runtime can be used with administrative access enabled which can be set via the [**Preferences > Application > General**](../ui/preferences/application/general.md) dialog. This will ensure that routable IP's are allocated.
-
-Next, export the virtual machine port explicitly using the command below:
-
-```bash
-export TESTCONTAINERS_HOST_OVERRIDE=$(rdctl shell ip a show rd0 | awk '/inet / {sub("/.*",""); print $2}')
-```
-
-</details>
-
-#### [VZ](../ui/preferences/virtual-machine/emulation.md#vz)
-
-<details>
-<summary>Workaround Summary</summary>
-
-This runtime can be used with administrative access enabled which can be set via the [**Preferences > Application > General**](../ui/preferences/application/general.md) dialog. This will ensure that routable IP's are allocated.
-
-Next, export the virtual machine port explicitly using the command below:
-
-```bash
-export TESTCONTAINERS_HOST_OVERRIDE=$(rdctl shell ip a show vznat | awk '/inet / {sub("/.*",""); print $2}')
-```
-
-For `VZ` virtual machines, you can also use Testcontainers without the need for administrative access by exporting the settings below:
-
-```bash
-export DOCKER_HOST=unix://$HOME/.rd/docker.sock
-export TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE=/var/run/docker.sock
-export TESTCONTAINERS_HOST_OVERRIDE=$(rdctl shell ip a show vznat | awk '/inet / {sub("/.*",""); print $2}')
-```
-
-</details>
-
-After the respective virtual machine settings have been applied, and the repository is downloaded, please navigate to the `testcontainers-java-repro` folder and run the command `mvn verify`.
-
-```shell
-mvn verify
-```
-
-After the command has been run, you should see a `BUILD SUCCESS` with test statistics for failures, number of tests ran, skipped tests, time elapsed, and errors.
-
-</TabItem>
-<TabItem value="Intel">
-
-After the repository is downloaded, please navigate to the `testcontainers-java-repro` folder and run the command `mvn verify`.
-
-```shell
-mvn verify
-```
-
-After the command has been run, you should see a `BUILD SUCCESS` with test statistics for failures, number of tests ran, skipped tests, time elapsed, and errors.
-
-</TabItem>
-</Tabs>
-
-</TabItem>
-<TabItem value="Windows">
-
-You can download a sample test repository in the `testcontainers-java-repro` located here: https://github.com/testcontainers/testcontainers-java-repro
-
-After the repository is downloaded, please navigate to the `testcontainers-java-repro` folder and run the command `mvn verify`.
-
-```shell
-mvn verify
-```
-
-After the command has been run, you should see a `BUILD SUCCESS` with test statistics for failures, number of tests ran, skipped tests, time elapsed, and errors.
-
-</TabItem>
-</Tabs>
+After the tests have completed, you should see a `BUILD SUCCESS` message in your terminal, along with a summary of the test results.

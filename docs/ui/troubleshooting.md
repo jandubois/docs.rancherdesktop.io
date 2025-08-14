@@ -9,6 +9,8 @@ title: Troubleshooting
 
 import TabsConstants from '@site/core/TabsConstants';
 
+The **Troubleshooting** tab provides several options to help you diagnose and resolve issues with Rancher Desktop.
+
 <Tabs groupId="os" defaultValue={TabsConstants.defaultOs}>
 <TabItem value="Windows">
 
@@ -29,30 +31,21 @@ import TabsConstants from '@site/core/TabsConstants';
 
 ### Show Logs
 
-Use this option to open the folder containing all Rancher Desktop log files.
+Clicking the **Show Logs** button will open the directory containing the Rancher Desktop log files. These files are essential for diagnosing and reporting issues.
 
-#### Enable Debug Mode
+### Enable Debug Mode
 
-Enable debug level logging.
+The **Enable Debug Mode** checkbox increases the verbosity of the logs, which can be helpful for troubleshooting complex issues.
 
 ### Reset Kubernetes
 
-Reset Kubernetes and remove all workloads and configurations. Before the reset occurs, users are presented with a confirmation and the option to also delete container images.
+Clicking the **Reset Kubernetes** button will delete the current Kubernetes cluster and reset it to its initial state. This will also delete all workloads and configurations.
 
-To reset Kubernetes:
-
-1. Click **Reset Kubernetes**. A confirmation window appears.
-1. Optional: select whether to also delete container images.
-1. Click **Reset** to proceed. Kubernetes stops and starts again.
+When you click the button, a confirmation dialog will appear, giving you the option to also delete your container images.
 
 ### Factory Reset
 
-Remove the cluster and all other Rancher Desktop settings. To continue The initial setup procedure must be done again.
+A factory reset will completely remove the Kubernetes cluster and all other Rancher Desktop settings. After a factory reset, you will need to go through the initial setup process again.
 
-To perform a factory reset:
-
-1. Click **Reset**. A confirmation window appears.
-1. Optional: select whether cached Kubernetes images are kept.
-1. Click **Factory Reset** to proceed. Kubernetes stops and Rancher Desktop closes.
-1. Optional: start Rancher Desktop again.
+When you click the **Factory Reset** button, a confirmation dialog will appear, giving you the option to keep the cache of Kubernetes images.
 

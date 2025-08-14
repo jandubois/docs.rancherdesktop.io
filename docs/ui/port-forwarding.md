@@ -9,6 +9,8 @@ title: Port Forwarding
 
 import TabsConstants from '@site/core/TabsConstants';
 
+The **Port Forwarding** tab allows you to forward ports from your local machine to services running in your Kubernetes cluster. This is useful for accessing applications running in your cluster from your local machine.
+
 <Tabs groupId="os" defaultValue={TabsConstants.defaultOs}>
 <TabItem value="Windows">
 
@@ -27,21 +29,21 @@ import TabsConstants from '@site/core/TabsConstants';
 </TabItem>
 </Tabs>
 
-### How to Forward a Port
+### Forwarding a Port
 
-The steps below outline how to forward a port:
+To forward a port for a service:
 
-1. Find the service and click **Forward**.
-1. Specify a port to use or use the randomly assigned port.
-1. Click the &check; button to confirm your selection.
-1. Optional: click **Cancel** to remove the port assigned.
+1.  In the list of services, find the one you want to forward and click the **Forward** button.
+2.  In the dialog that appears, you can either specify a port to use or accept the randomly assigned port.
+3.  Click the checkmark button to confirm your selection.
+4.  To stop forwarding a port, click the **Cancel** button.
 
-### Admin vs Non-Admin Port Mappings
+### Admin vs. Non-Admin Port Mappings
 
-Rancher Desktop includes automated port forwarding for versions `1.9` and later. For non-admin port access, port mappings are configured to the localhost and unprivileged ports `> 1024`. Privileged port mappings can also be configured by users with admin permissions for ports `<= 1024`.
+Rancher Desktop supports automated port forwarding. For users without administrative privileges, port mappings are configured to the localhost and are limited to unprivileged ports (greater than 1024).
+
+If you have administrative privileges, you can also configure port mappings for privileged ports (less than or equal to 1024).
 
 :::note
-
-Please see [Traefik Port Binding Access](../getting-started/installation.md#traefik-port-binding-access) to configure ports at the operating system level.
-
+You may also need to configure port access at the operating system level. For more information, please see the documentation on [Traefik port binding access](../getting-started/installation.md#traefik-port-binding-access).
 :::

@@ -8,100 +8,99 @@ title: Provisioning Scripts
 
 import TabsConstants from '@site/core/TabsConstants';
 
-Provisioning scripts can be used to override some of Rancher Desktop's internal processes. For example, scripts can be used to provide certain command line parameters to K3s, add additional mounts, increase ulimit value etc. This guide will explain how to set up your provisioning scripts for macOS, Linux, and Windows.
+Provisioning scripts allow you to customize the Rancher Desktop environment by overriding internal processes. You can use them to pass command-line arguments to K3s, add extra mounts, increase resource limits, and more. This guide explains how to set up provisioning scripts on macOS, Linux, and Windows.
 
 ## macOS & Linux
 
-On macOS and Linux, you can use lima override.yaml to write provisioning scripts.
+On macOS and Linux, you can use an `override.yaml` file to define your provisioning scripts and other lima configurations.
 
-- Run Rancher Desktop at least once to allow it to create the `_config` directory.
+1.  **Create the `override.yaml` File**
 
-:::note
-Please note that the directory will be deleted during a factory-reset, so ensure a backup for your provisioning scripts in case you need them after a factory-reset.
-:::
+    First, run Rancher Desktop at least once to ensure the necessary configuration directories are created.
 
-- Create `override.yaml` file at below path
+    :::note
+    The configuration directory is deleted during a factory reset. Be sure to back up your `override.yaml` file if you wish to restore it after a reset.
+    :::
 
-<Tabs groupId="os">
-  <TabItem value="macOS">
+    Create an empty `override.yaml` file in the following location:
 
-```
-~/Library/Application\ Support/rancher-desktop/lima/_config/override.yaml
-```
+    <Tabs groupId="os">
+    <TabItem value="macOS">
 
-  </TabItem>
-  <TabItem value="Linux">
+    ```
+    ~/Library/Application\ Support/rancher-desktop/lima/_config/override.yaml
+    ```
 
-```
-~/.local/share/rancher-desktop/lima/_config/override.yaml
-```
+    </TabItem>
+    <TabItem value="Linux">
 
-  </TabItem>
-</Tabs>
+    ```
+    ~/.local/share/rancher-desktop/lima/_config/override.yaml
+    ```
 
-- Write a provisioning script in the `override.yaml` file created in the previous step. For example, you can use the below script to increase ulimit for containers.
+    </TabItem>
+    </Tabs>
 
-```
-provision:
-- mode: system
-  script: |
-    #!/bin/sh
-    cat <<'EOF' > /etc/security/limits.d/rancher-desktop.conf
-    * soft     nofile         82920
-    * hard     nofile         82920
-    EOF
-```
+2.  **Add Your Configurations**
 
-- You can also use `override.yaml` to override/modify a lima configuration setting, for example, to create additional mounts as shown below.
+    You can add various configurations to the `override.yaml` file. The following example demonstrates how to increase the `ulimit` for containers, add an additional writable mount, and pass a startup flag to the K3s server.
 
-```
-mounts:
-  - location: /some/path 
-    writable: true
-```
+    ```yaml
+    # Increase ulimit for containers
+    provision:
+    - mode: system
+      script: |
+        #!/bin/sh
+        cat <<'EOF' > /etc/security/limits.d/rancher-desktop.conf
+        * soft     nofile         82920
+        * hard     nofile         82920
+        EOF
 
-- Another example uses the `override.yaml` file to allow users to implement custom settings for [`K3s`](https://k3s.io/?ref=traefik.io) environments using Rancher Desktop's `K3S_EXEC` syntax (Similar to the `K3s` syntax [`INSTALL_K3S_EXEC`](https://docs.k3s.io/reference/env-variables#:~:text=as%20the%20default.-,INSTALL_K3S_EXEC,-Command%20with%20flags)). Please see the [agent](https://docs.k3s.io/cli/agent) and [server](https://docs.k3s.io/cli/server) command line flags documentation for further installation options. Below is an example setting using the [`--tls-san value`](https://docs.k3s.io/cli/server#:~:text=of%20the%20cluster-,%2D%2Dtls%2Dsan%20value,-N/A) flag to add additional hostnames as Subject Alternative Names on the TLS certification:
+    # Add an additional writable mount
+    mounts:
+      - location: /some/path
+        writable: true
 
-```
-env:
-  K3S_EXEC: --tls-san value
-```
+    # Add a TLS SAN to the K3s server certificate
+    env:
+      K3S_EXEC: --tls-san value
+    ```
+
+    For more information on K3s environment variables and flags, please refer to the [K3s documentation](https://docs.k3s.io/reference/env-variables).
 
 ## Windows
 
-**Caution:** You can only utilize these provisioning scripts for Rancher Desktop, version 1.1.0 or later, on Windows.
+On Windows, you can use `.start` and `.stop` files to run provisioning scripts at different points in the Rancher Desktop lifecycle.
 
-- Run Rancher Desktop at least once to allow it to create the configuration `provisioning` directory.
+1.  **Locate the `provisioning` Directory**
 
-:::note
-Please note that the directory will be deleted during a factory-reset, so ensure a backup for your provisioning scripts in case you need them after factory-reset.
-:::
+    First, run Rancher Desktop at least once to ensure the necessary configuration directories are created.
 
-- Open the `%LOCALAPPDATA%\rancher-desktop\provisioning` directory. An example of the full path: `C:\Users\Joe\AppData\Local\rancher-desktop\provisioning`.
+    :::note
+    The `provisioning` directory is deleted during a factory reset. Be sure to back up your scripts if you wish to restore them after a reset.
+    :::
 
-- Note that any files with a file extension of `.start`, such as `k3s-overrides.start`, can be executed when _Rancher Desktop starts its Kubernetes backend_ (if enabled). Such files will run within the Rancher Desktop WSL context.
+    The provisioning directory is located at `%LOCALAPPDATA%\rancher-desktop\provisioning`. For example: `C:\Users\Joe\AppData\Local\rancher-desktop\provisioning`.
 
-Example flow for `.start` files:
-- Rancher Desktop internal setup
-- Run provisioning scripts
-- Enable `dockerd` or `containerd` in the UI
-- Kubernetes (K3s)
+2.  **Create `.start` and `.stop` Scripts**
 
-As an example, using `%LOCALAPPDATA%\rancher-desktop\provisioning\insecure-registry.start` will allow `nerdctl` to use insecure registries by default:
+    You can create two types of scripts in the `provisioning` directory:
 
-```
-#!/bin/sh
+    -   **`.start` scripts:** These scripts are executed after Rancher Desktop's internal setup is complete but before the container runtime and Kubernetes are started.
+    -   **`.stop` scripts:** These scripts are executed after the container runtime and Kubernetes have been shut down.
 
-mkdir -p /etc/nerdctl
-cat >  /etc/nerdctl/nerdctl.toml <<EOF
-insecure_registry = true
-EOF
-```
+    For example, you can create a file named `insecure-registry.start` to configure an insecure registry for `nerdctl`:
 
-- Note that files with a file extension of `.stop`, such as `wipe-data.stop`, can be executed _after Rancher Desktop shuts down its Kubernetes backend_ (if enabled). Such files will run within the same Rancher Desktop WSL context.
+    ```sh
+    #!/bin/sh
+    mkdir -p /etc/nerdctl
+    cat >  /etc/nerdctl/nerdctl.toml <<EOF
+    insecure_registry = true
+    EOF
+    ```
 
-Example flow for `.stop` files:
-- Stop `k3s`, `dockerd` or `containerd`
-- Run deprovisioning scripts
+    :::important
+    Scripts on Windows must be saved with Unix-style line endings (LF). Files with DOS-style line endings (CRLF) may produce unexpected results.
+    :::
 
-**Important to note:** Scripts need to be saved with Unix line endings; line-ending conversion is not done; and files with DOS line endings may produce unexpected results. There are some limitations to the things you can change using provisioning scripts. For example, you cannot change the hard ulimits on WSL2 using provisioning scripts. Please use provisioning scripts with caution and feel free to reach out to the Rancher Desktop team on Slack/Github if you have a specific question about provisioning scripts.
+There are some limitations to what you can change with provisioning scripts. For example, you cannot change the hard `ulimit` on WSL2. If you have questions about specific use cases, please feel free to reach out to the Rancher Desktop community on [Slack](https://slack.rancher.io/) or [GitHub](https://github.com/rancher-sandbox/rancher-desktop/issues).

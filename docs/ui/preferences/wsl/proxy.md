@@ -9,24 +9,20 @@ title: Proxy
 
 ![](rd-versioned-asset://preferences/Windows_wsl_tabProxy.png)
 
-### WSL Proxy
+The **Proxy** tab allows you to configure Rancher Desktop to use a proxy server, which can be useful for users in a corporate or VPN environment.
 
-:::caution warning
-
-This is an **experimental** setting.
-
+:::caution
+This is an **experimental** feature.
 :::
 
-Rancher Desktop now allows local, corporate, or VPN proxy server support for Windows users. The implementation can be enabled or disabled through the `Proxy` tab to capture network traffic and forward it to an http proxy. Once all information has been input, click the `Apply` button to have changes immediately take effect.
+### Proxy Address
 
-### Proxy address
+In this section, you can enter the IP address and port number of your proxy server.
 
-Users can input their proxy IP address and port number in the `Proxy address` fields.
+### Authentication
 
-### Authentication information
+If your proxy server requires authentication, you can enter your username and password in this section.
 
-If your proxy requires authentication then users can input their username and password in the `Authentication information` fields.
+### No Proxy
 
-### No proxy hostname list
-
-Default hostnames that should not be proxied will be displayed in this text area.
+This section allows you to specify a list of hostnames that should bypass the proxy. By default, this list includes several common local hostnames.

@@ -9,6 +9,8 @@ title: Kubernetes
 
 import TabsConstants from '@site/core/TabsConstants';
 
+The **Kubernetes** tab allows you to configure your local Kubernetes cluster.
+
 <Tabs groupId="os" defaultValue={TabsConstants.defaultOs}>
 <TabItem value="Windows">
 
@@ -29,56 +31,29 @@ import TabsConstants from '@site/core/TabsConstants';
 
 #### Enable Kubernetes
 
-This option allows you to enable or disable Kubernetes. By disabling Kubernetes, you can run just `containerd` or `dockerd` by itself for reduced resource consumption. By default, Kubernetes is enabled.
-
-To enable/disable Kubernetes, just check/uncheck the `Enable Kubernetes` checkbox. The app will be restarted when you enable/disable Kubernetes. Disabling Kubernetes will not delete existing resources and they will be available again when you enable Kubernetes again.
+You can enable or disable Kubernetes by checking the **Enable Kubernetes** checkbox. If you do not need to run Kubernetes, you can disable it to conserve resources. When you disable Kubernetes, any existing workloads and configurations will be preserved and will become available again when you re-enable it.
 
 #### Kubernetes Version
 
-This option presents a list of Kubernetes versions that your Rancher Desktop instance can use.
+This dropdown menu allows you to select the version of Kubernetes you want to run.
 
-When upgrading:
-
-- A check is performed to see if the target Kubernetes version is available locally. If not, it downloads the files.
-- Workloads are retained.
-- Images are retained.
-
-When downgrading:
-
-- Workloads are removed.
-- Images are retained.
-
-To switch versions:
-
-1. Click the **Kubernetes version** drop-down menu.
-1. Select the version you want to change to.
+> **Note:** When you switch between Kubernetes versions, your existing workloads and images will be affected.
+>
+> -   **Upgrading:** Workloads and images are retained.
+> -   **Downgrading:** Workloads are removed, but images are retained.
 
 #### Kubernetes Port
 
-Set the port Kubernetes is exposed on. Use this setting to avoid port collisions if multiple instances of K3s are running.
+This setting allows you to specify the port on which the Kubernetes API server is exposed. This is useful for avoiding port collisions if you are running multiple Kubernetes clusters on the same machine.
 
-#### Options
+### Options
 
-##### Enable Traefik
+#### Enable Traefik
 
-This option allows you to enable or disable Traefik. By disabling Traefik, you can free up port 80 and 443 for alternate ingress configuration. By default, Traefik is enabled.
+This option allows you to enable or disable the built-in [Traefik](https://traefik.io/) Ingress controller. If you want to use a different Ingress controller, you can disable Traefik to free up ports 80 and 443.
 
-Disabling Traefik will not delete existing resources.
+#### Install Spin Operator
 
-##### Install Spin Operator
+This setting enables experimental support for running WebAssembly applications in Kubernetes using the [Spin](https://www.spinkube.dev/) operator.
 
-:::caution warning
-
-This is an **experimental** setting.
-
-:::
-
-This option will install the [spinkube](https://www.spinkube.dev/) operator with the `cert-manager` prerequisite, and configure it with the `spin` RuntimeClass.
-
-This option requires that the [WebAssembly](./container-engine/general.md) support is enabled.
-
-:::note
-
-Rancher Desktop automatically installs the [spin cli](https://developer.fermyon.com/spin/v2/index) and the [kube plugin](https://github.com/spinkube/spin-plugin-kube) to help develop and deploy Spin applications on Kubernetes.
-
-:::
+> **Note:** This feature requires that [WebAssembly support](./container-engine/general.md) is enabled in the **Container Engine** tab.

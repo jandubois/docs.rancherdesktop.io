@@ -9,7 +9,7 @@ title: Behavior
 
 import TabsConstants from '@site/core/TabsConstants';
 
-Allows for configuration of application behavior upon startup, background process behavior, and notification icon display.
+The **Behavior** tab allows you to configure various aspects of the application's behavior, including startup, background processes, and the notification icon.
 
 <Tabs groupId="os" defaultValue={TabsConstants.defaultOs}>
 <TabItem value="Windows">
@@ -18,23 +18,16 @@ Allows for configuration of application behavior upon startup, background proces
 
 #### Startup
 
-Rancher Desktop can automatically be started as part of the user login process. This will take all other behavior settings from the page into account as well.
+You can configure Rancher Desktop to start automatically when you log in to your computer. When this option is enabled, all other behavior settings will be applied on startup.
 
 #### Background
 
-When Rancher Desktop is started in the background, it will not have an application window, nor an entry in the task switcher or task bar. The application window can still be opened via the context menu of the notification icon.
-
-When Rancher Desktop is launched again while already running in the background then the application window is shown and the application is added to the task switcher and task bar. This can be used to gain access to the background application again when the notification icon is unavailable as well.
-
-Rancher Desktop normally remains running in the background even when the main application window is closed (and the application therefore removed from the task switcher and task bar), but can be configured to terminate the application as well when the main window is closed.
+-   **Start in Background:** When this option is enabled, Rancher Desktop will start without a main application window or an icon in the taskbar. You can still access the application window from the notification icon's context menu.
+-   **Quit on Close:** By default, Rancher Desktop will continue to run in the background even when the main window is closed. If you enable this option, the application will terminate when the main window is closed.
 
 #### Notification Icon
 
-Rancher Desktop shows the application status with a notification icon. The context menu of the icon provides more status information and provides quick access to other functionality of the application. This options will disable the creation of the notification icon.
-
-#### Known Issues and Limitations
-
-* For Ubuntu operating systems and specifically versions >= 20.04.5 LTS, there is a known issue with hiding the tray icon in the preferences settings. Please see this [issue comment](https://github.com/rancher-sandbox/rancher-desktop/issues/4205#issuecomment-1533750167) for further information.
+Rancher Desktop displays a notification icon in the system tray to indicate the application's status and provide quick access to other features. You can disable the notification icon by unchecking the **Show Notification Icon** option.
 
 </TabItem>
 <TabItem value="macOS">
@@ -43,23 +36,16 @@ Rancher Desktop shows the application status with a notification icon. The conte
 
 #### Startup
 
-Rancher Desktop can automatically be started as part of the user login process. This will take all other behavior settings from the page into account as well.
+You can configure Rancher Desktop to start automatically when you log in to your computer. When this option is enabled, all other behavior settings will be applied on startup.
 
 #### Background
 
-When Rancher Desktop is started in the background, it will not have an application window, nor an entry in the app switcher or the dock. The application window can still be opened via the context menu of the notification icon in the menu bar.
-
-When Rancher Desktop is launched again while already running in the background then the application window is shown and the application is added to the app switcher and the dock. This can be used to gain access to the background application again when the notification icon is unavailable as well.
-
-Rancher Desktop normally remains running in the background even when the main application window is closed (and the application therefore removed from the app switcher and the dock), but can be configured to terminate the application as well when the main window is closed.
+-   **Start in Background:** When this option is enabled, Rancher Desktop will start without a main application window or an icon in the dock. You can still access the application window from the notification icon's context menu.
+-   **Quit on Close:** By default, Rancher Desktop will continue to run in the background even when the main window is closed. If you enable this option, the application will terminate when the main window is closed.
 
 #### Notification Icon
 
-Rancher Desktop shows the application status with a notification icon in the menu bar. The context menu of the icon provides more status information and provides quick access to other functionality of the application. This options will disable the creation of the notification icon.
-
-#### Known Issues and Limitations
-
-* For Ubuntu operating systems and specifically versions >= 20.04.5 LTS, there is a known issue with hiding the tray icon in the preferences settings. Please see this [issue comment](https://github.com/rancher-sandbox/rancher-desktop/issues/4205#issuecomment-1533750167) for further information.
+Rancher Desktop displays a notification icon in the menu bar to indicate the application's status and provide quick access to other features. You can disable the notification icon by unchecking the **Show Notification Icon** option.
 
 </TabItem>
 <TabItem value="Linux">
@@ -68,23 +54,20 @@ Rancher Desktop shows the application status with a notification icon in the men
 
 #### Startup
 
-Rancher Desktop can automatically be started as part of the user login process. This will take all other behavior settings from the page into account as well.
+You can configure Rancher Desktop to start automatically when you log in to your computer. When this option is enabled, all other behavior settings will be applied on startup.
 
 #### Background
 
-When Rancher Desktop is started in the background, it will not have an application window, nor an entry in the task switcher or task bar. The application window can still be opened via the context menu of the notification icon.
-
-When Rancher Desktop is launched again while already running in the background then the application window is shown and the application is added to the task switcher and task bar. This can be used to gain access to the background application again when the notification icon is unavailable as well.
-
-Rancher Desktop normally remains running in the background even when the main application window is closed (and the application therefore removed from the task switcher and task bar), but can be configured to terminate the application as well when the main window is closed.
+-   **Start in Background:** When this option is enabled, Rancher Desktop will start without a main application window or an icon in the task switcher. You can still access the application window from the notification icon's context menu.
+-   **Quit on Close:** By default, Rancher Desktop will continue to run in the background even when the main window is closed. If you enable this option, the application will terminate when the main window is closed.
 
 #### Notification Icon
 
-Rancher Desktop shows the application status with a notification icon. The context menu of the icon provides more status information and provides quick access to other functionality of the application. This options will disable the creation of the notification icon.
+Rancher Desktop displays a notification icon in the system tray to indicate the application's status and provide quick access to other features. You can disable the notification icon by unchecking the **Show Notification Icon** option.
 
-#### Known Issues and Limitations
-
-* For Ubuntu operating systems and specifically versions >= 20.04.5 LTS, there is a known issue with hiding the tray icon in the preferences settings. Please see this [issue comment](https://github.com/rancher-sandbox/rancher-desktop/issues/4205#issuecomment-1533750167) for further information.
+:::note
+On Ubuntu 20.04.5 LTS and newer, there is a known issue with hiding the notification icon. For more information, please see [this issue comment](https://github.com/rancher-sandbox/rancher-desktop/issues/4205#issuecomment-1533750167).
+:::
 
 </TabItem>
 </Tabs>

@@ -1,59 +1,73 @@
 ---
-title: VS Code Remote Containers
+title: Using VS Code Remote Containers
 ---
 
 <head>
   <link rel="canonical" href="https://docs.rancherdesktop.io/how-to-guides/vs-code-remote-containers"/>
 </head>
 
-The [Visual Studio Code Remote - Containers] extension lets you use a Docker container as a full-featured development environment, which helps ensure a consistent environment across developer machines and makes it easy for new team members and contributors to get up and running. Since Rancher Desktop supports Docker CLI via [Moby], you can use the Visual Studio Code Remote - Containers extension out-of-the-box.
+The [Visual Studio Code Remote - Containers](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers) extension allows you to use a Docker container as a full-featured development environment. This helps to ensure a consistent environment across developer machines and makes it easy for new team members to get started.
 
-### Steps to try a sample dev container
+This guide will walk you through the process of using the Remote - Containers extension with Rancher Desktop.
 
-1. Install and launch Rancher Desktop. Select `dockerd (moby)` as the Container Runtime from the `Kubernetes Settings` menu.
+### Step 1: Set Up Your Environment
 
-![](../img/vscoderemotecontainers/rd-main.png)
+1.  **Install and Launch Rancher Desktop:**
+    Ensure that `dockerd (moby)` is selected as the container runtime in the **Kubernetes Settings** panel.
 
-2. Install and launch Visual Studio Code or Visual Studio Code Insiders. This tutorial uses Visual Studio Code.
+    ![](../img/vscoderemotecontainers/rd-main.png)
 
-![](../img/vscoderemotecontainers/vscode-main.png)
+2.  **Install and Launch Visual Studio Code:**
+    This guide uses the standard version of Visual Studio Code.
 
-3. Install the Remote Development extension pack. 
+    ![](../img/vscoderemotecontainers/vscode-main.png)
 
-![](../img/vscoderemotecontainers/vscode-remotedevelopment-marketplace.png)
+3.  **Install the Remote Development Extension Pack:**
+    Install the [Remote Development extension pack](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.vscode-remote-extensionpack) from the VS Code Marketplace. This pack includes the Remote - Containers extension.
 
-4. After the extension is installed, you will see the extension item in the side bar, and a green button at the lower left corner to show the command palette with various options/commands related to `Remote Development`.
+    ![](../img/vscoderemotecontainers/vscode-remotedevelopment-marketplace.png)
 
-![](../img/vscoderemotecontainers/vscode-remotedevelopment-installed.png)
+    After the extension is installed, you will see a new item in the side bar and a green button in the lower-left corner, which provides access to the Remote Development commands.
 
-5. Microsoft provides a number of sample dev containers at this GitHub repository: https://github.com/microsoft/vscode-dev-containers.git. Clone this repository to your local machine.
+    ![](../img/vscoderemotecontainers/vscode-remotedevelopment-installed.png)
 
-```
-git clone https://github.com/microsoft/vscode-dev-containers.git
-```
+### Step 2: Open a Dev Container
 
-6. Press `F1` to bring up a search bar on the command pallette to query for available commands. Begin to type in "Dev Containers: Open Folder in Container..." and click on the command `Dev Containers: Open Folder in Container...`. Browse to one of the samples in the cloned respository, e.g., `javascript-node`.
+1.  **Clone the Sample Repository:**
+    This guide uses the sample dev containers provided by Microsoft. Clone the repository to your local machine:
 
-![](../img/vscoderemotecontainers/vscode-remotedevelopment-commandpalette.png)
+    ```bash
+    git clone https://github.com/microsoft/vscode-dev-containers.git
+    ```
 
-![](../img/vscoderemotecontainers/vscode-remotedevelopment-openfolder.png)
+2.  **Open a Project in a Container:**
+    -   Press `F1` to open the command palette.
+    -   Type "Dev Containers: Open Folder in Container..." and select the command.
+    -   Browse to the `vscode-dev-containers` directory you cloned and select one of the sample projects, such as `javascript-node`.
 
+    ![](../img/vscoderemotecontainers/vscode-remotedevelopment-commandpalette.png)
 
-7. On selecting a sample, you will see the progress notification  ![](../img/vscoderemotecontainers/vscode-remotedevelopment-containerprogress.png) while the container is being loaded, and once the container is successfully started, the bottom left corner shows the container name. ![](../img/vscoderemotecontainers/vscode-remotedevelopment-containersuccess.png)
+    ![](../img/vscoderemotecontainers/vscode-remotedevelopment-openfolder.png)
 
-8. Once the container is started, Press `F5` in the VS Code IDE to start the sample application. You will see that the application is started and served on `localhost:3000`.
+    VS Code will now build and start the dev container. You can monitor the progress in the notification area. Once the container is running, the name of the container will be displayed in the lower-left corner.
+
+    ![](../img/vscoderemotecontainers/vscode-remotedevelopment-containersuccess.png)
+
+### Step 3: Run the Application
+
+Once the dev container is running, you can start the sample application.
+
+1.  Press `F5` to start the debugger.
+2.  The application will start and be forwarded to `localhost:3000`.
 
 ![](../img/vscoderemotecontainers/vscode-remotedevelopment-appinbrowser.png)
 
-Congratulations! You have successfully loaded and run a sample dev container using Rancher Desktop and VS Code.
+You have now successfully used the VS Code Remote - Containers extension with Rancher Desktop to develop an application in a container.
 
+### Next Steps
 
-### Next steps
-
-Microsoft has provided extensive documentation about using dev containers in various scenarios [here]. Please refer to the following tutorials to try a use case that's relevant to your needs.
+Microsoft provides extensive documentation on using dev containers in various scenarios. For more information, please refer to the [official documentation](https://code.visualstudio.com/docs/remote/remote-overview).
 
 [Visual Studio Code Remote - Containers]: https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers
 [Moby]: https://mobyproject.org/
 [here]: https://code.visualstudio.com/docs/remote/remote-overview
-
-Happy Containerizing with Rancher Desktop!

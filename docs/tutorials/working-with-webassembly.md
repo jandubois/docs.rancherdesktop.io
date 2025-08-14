@@ -6,191 +6,142 @@ title: Working with WebAssembly
   <link rel="canonical" href="https://docs.rancherdesktop.io/tutorials/working-with-webassembly"/>
 </head>
 
-Rancher Desktop 1.13.0 added experimental support for running WebAssembly (Wasm) applications. This feature needs to be enabled in  [Preferences > Container Engine > General](../ui/preferences/container-engine/general.md).
+Rancher Desktop provides experimental support for running WebAssembly (Wasm) applications. This tutorial will guide you through the process of developing, building, and running a Wasm application with Rancher Desktop.
 
-:::caution warning
-Note that when using the `moby` container engine, enabling the Wasm feature switches to a different image store, so previously built or downloaded images will not be available and must be built or downloaded again. The images are not lost; Rancher Desktop will switch back to the old image store when Wasm is disabled again.
-:::
+### Step 1: Enable Wasm Support
 
-## Managing containerd Wasm shims
+To get started, you will need to enable Wasm support in Rancher Desktop:
 
-Running WebAssembly applications on a container runtime requires a specific containerd "shim" for each Wasm runtime/framework used.
+1.  Navigate to **Preferences > Container Engine > General**.
+2.  Check the **Enable Wasm** option.
 
-Rancher Desktop 1.13 comes bundled with the `containerd-spin-shim-v2` shim preinstalled. Future releases are expected to download additional shims automatically when the feature is enabled.
+> **Important:** When using the `moby` container engine, enabling Wasm support will switch to a different image store. Any images you have previously built or downloaded will not be available until you disable Wasm support again.
 
-For now additional shims can be installed by the user into the `containerd-shims` cache directory on the host. The location is
+### Step 2: Create a Wasm Application
 
-- Linux: `~/.local/share/rancher-desktop/containerd-shims`
-- macOS: `~/Library/Application\ Support/rancher-desktop/containerd-shims`
-- Windows: `%LOCALAPPDATA%\rancher-desktop\containerd-shims`
+This tutorial uses the [Fermyon Spin](https://developer.fermyon.com/spin/v2/install) framework to create a simple "Hello World" application.
 
-Any shim installed there will automatically be copied into the VM and configured for the container engine when Rancher Desktop is started (installing a newer version of the `spin` shim will override the bundled version).
+1.  **Install Spin:**
+    Follow the instructions on the [Spin installation page](https://developer.fermyon.com/spin/v2/install) to install the Spin CLI.
 
-## Developing Wasm Applications with Rancher Desktop
+2.  **Create a New Application:**
+    Run the `spin new` command and follow the prompts to create a new application. For this example, you can select the `http-ts` template to create a TypeScript-based application.
 
-Developing Wasm applications on your local machine on top of Rancher Desktop typically involves below steps:
+3.  **Customize the Application Code:**
+    In the generated `index.ts` file, modify the `handleRequest` function to return a custom message:
 
-- Create an application in your programming language of choice. You can compile code written in many languages, such as C, C++, Rust, Go, and others, into Wasm modules
-- Compile the code into a Wasm module
-- Package the Wasm module as a OCI container image and push to a container registry
-- Run the Wasm container and/or
-- Deploy the Wasm container into Kubernetes
+    ```typescript
+    import { HandleRequest, HttpRequest, HttpResponse } from "@fermyon/spin-sdk"
 
-### Creating a Simple App and Compiling It Into a Wasm Module
+    export const handleRequest: HandleRequest = async function (request: HttpRequest): Promise<HttpResponse> {
+      return {
+        status: 200,
+        headers: { "content-type": "text/plain" },
+        body: "Hello from Wasm container!"
+      }
+    }
+    ```
 
-You can use the Spin framework from Fermyon to quickly bootstrap a simple Wasm app. Install Spin on your machine following the instructions on the [Installing Spin](https://developer.fermyon.com/spin/v2/install) page.
+4.  **Build the Wasm Module:**
+    From the root of your application directory, run the `spin build` command to compile your code into a Wasm module.
 
-Once you have successfully installed Spin, create a new app via the command `spin new`. 
+    ```bash
+    spin build
+    ```
 
-Select the language you would like to use for development.  
-```console
-$spin new
-Pick a template to start your application with:
-  http-js (HTTP request handler using Javascript)
-> http-ts (HTTP request handler using Typescript)
-```
+    This will create a `.wasm` file in the `target` directory.
 
-Give a name to your app
-```console
-$spin new
-Pick a template to start your application with: http-ts (HTTP request handler using Typescript)
-Enter a name for your new application: rd-spin-hello-world
-```
+### Step 3: Package and Push the Wasm Module
 
-Provide an optional description and leave the API route path to default
-```console
-$spin new
-Pick a template to start your application with: http-ts (HTTP request handler using Typescript)
-Enter a name for your new application: rd-spin-hello-world
-Description []: This is a simple typescript app that will be compiled into a Wasm module and run as a Wasm container
-HTTP path:  /...
-```
+Next, you will package your Wasm module as an OCI container image and push it to a container registry.
 
-Once the command ran successfully, you should see a directory created with the boilerplate code for the Spin app. 
+1.  **Create a `Dockerfile`:**
+    Create a new file named `Dockerfile` with the following content:
 
-Update the `index.ts` file to return a different message than the default.
+    ```dockerfile
+    FROM scratch
+    COPY spin.toml /spin.toml
+    COPY /target/rd-spin-hello-world.wasm /target/rd-spin-hello-world.wasm
+    ```
 
-```console
-import { HandleRequest, HttpRequest, HttpResponse } from "@fermyon/spin-sdk"
+2.  **Build the Container Image:**
 
-export const handleRequest: HandleRequest = async function (request: HttpRequest): Promise<HttpResponse> {
-  return {
-    status: 200,
-    headers: { "content-type": "text/plain" },
-    body: "Hello from Wasm container!"
-  }
-}
-```
+    <Tabs groupId="container-runtime">
+    <TabItem value="nerdctl" default>
 
-Change to the app directory and run the `spin build` command to compile the app code into a Wasm module.
+    ```bash
+    nerdctl build \
+      --namespace k8s.io \
+      --platform wasi/wasm \
+      -t <YOUR-REGISTRY>/rd-spin-hello-world:0.1.0 .
+    ```
 
-```console
-$spin build
-Building component rd-spin-hello-world with `npm run build`
+    </TabItem>
+    <TabItem value="docker">
 
-$ rd-spin-hello-world@1.0.0 build
-$ npx webpack --mode=production && mkdir -p target && spin js2wasm -o target/rd-spin-hello-world.wasm dist/spin.js
+    ```bash
+    docker buildx build \
+      --load \
+      --platform wasi/wasm \
+      --provenance=false \
+      -t <YOUR-REGISTRY>/rd-spin-hello-world:0.1.0 .
+    ```
 
-asset spin.js 4.57 KiB [compared for emit] (name: main)
-runtime modules 670 bytes 3 modules
-./src/index.ts 2.86 KiB [built] [code generated]
-webpack 5.91.0 compiled successfully in 1355 ms
+    </TabItem>
+    </Tabs>
 
-Starting to build Spin compatible module
-Spin compatible module built successfully
-Finished building all Spin components
-```
+3.  **Push the Image to a Registry:**
 
-Once the build command ran successfully, you should see the `rd-spin-hello-world.wasm` module created inside the `target` directory.
+    <Tabs groupId="container-runtime">
+    <TabItem value="nerdctl" default>
 
-### Package the Wasm Module as an OCI Container Image and Push to a Container Registry
+    ```bash
+    nerdctl push <YOUR-REGISTRY>/rd-spin-hello-world:0.1.0
+    ```
 
-Create a `Dockerfile` with below code to package the `Wasm` module as a docker image.
+    </TabItem>
+    <TabItem value="docker">
 
-```console
-FROM scratch
-COPY spin.toml /spin.toml
-COPY /target/rd-spin-hello-world.wasm /target/rd-spin-hello-world.wasm
-```
+    ```bash
+    docker push <YOUR-REGISTRY>/rd-spin-hello-world:0.1.0
+    ```
 
-Run the command below to package the Wasm module as a container image.
+    </TabItem>
+    </Tabs>
 
-<Tabs groupId="container-runtime">
-  <TabItem value="nerdctl" default>
+### Step 4: Run the Wasm Application
 
-```console
-nerdctl build \
-  --namespace k8s.io \
-  --platform wasi/wasm \
-  -t ghcr.io/rancher-sandbox/rd-spin-hello-world:0.1.0 .
-```
+You can run your Wasm application as a standalone container or as a deployment in Kubernetes.
 
-  </TabItem>
-  <TabItem value="docker">
+#### Running as a Standalone Container
 
-```console
-docker buildx build \
-  --load \
-  --platform wasi/wasm \
-  --provenance=false \
-  -t ghcr.io/rancher-sandbox/rd-spin-hello-world:0.1.0 .
-```
+> **Note:** Running a Wasm container directly is currently only supported with the `moby` container engine.
 
-  </TabItem>
-</Tabs>
+Ensure that `dockerd (moby)` is selected as your container engine, and then run the following command:
 
-Push the image to the container registry
-
-<Tabs groupId="container-runtime">
-  <TabItem value="nerdctl" default>
-
-```console
-nerdctl push ghcr.io/rancher-sandbox/rd-spin-hello-world:0.1.0
-```
-
-  </TabItem>
-  <TabItem value="docker">
-
-```console
-docker push ghcr.io/rancher-sandbox/rd-spin-hello-world:0.1.0
-```
-
-  </TabItem>
-</Tabs>
-
-### Running the Wasm Container
-
-Running a Wasm container directly is currently only supported with the `moby` container engine; there is a bug in `nerdctl` that prevents it from working with `containerd`. Ensure you have selected `dockerd(moby)` as the container engine under [Preferences > Container Engine > General](../ui/preferences/container-engine/general.md) to work through the steps in this section.
-
-
-The following command runs the `rd-spin-hello-world` sample `spin` application, built in the previous section, on the `moby` engine (note the final `/` on the last line; it is the command to run, and `docker run` will fail if it is omitted):
-
-```console
+```bash
 docker run \
     --detach \
     --name spin-demo \
     --runtime io.containerd.spin.v2 \
     --platform wasi/wasm \
     --publish 8080:80 \
-    ghcr.io/rancher-sandbox/rd-spin-hello-world:0.1.0 \
+    <YOUR-REGISTRY>/rd-spin-hello-world:0.1.0 \
     /
 ```
 
-The internal port `80` has been mapped to `8080` and can be tested from the host:
+You can now access your application at `http://localhost:8080`.
 
-```console
-$ curl http://localhost:8080/
-Hello from Wasm container!
-```
+#### Running in Kubernetes
 
-### Running Wasm Apps with Kubernetes
+> **Note:** Running a Wasm application in Kubernetes is currently only supported with the `containerd` runtime.
 
-Running WebAssembly applications on Kubernetes is currently only supported with the `containerd` runtime; it doesn't work with the `cri-dockerd` shim used to run Kubernetes on top of `moby`.
+Ensure that `containerd` is selected as your container engine, and then apply the following Kubernetes manifests:
 
-Create a deployment for the sample Wasm container image built in the previous section:
+<details>
+<summary>Click to see the Kubernetes manifests</summary>
 
-```console
-kubectl apply --filename - <<EOF
+```yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -208,21 +159,9 @@ spec:
       runtimeClassName: spin
       containers:
       - name: hello-spin
-        image: ghcr.io/rancher-sandbox/rd-spin-hello-world:0.1.0
+        image: <YOUR-REGISTRY>/rd-spin-hello-world:0.1.0
         command: ["/"]
-EOF
-```
-
-It should print
-
-```
-deployment.apps/hello-spin created
-```
-
-Then create a ClusterIP service and a Traefik ingress contoller:
-
-```console
-kubectl apply --filename - <<EOF
+---
 apiVersion: v1
 kind: Service
 metadata:
@@ -252,41 +191,16 @@ spec:
               name: hello-spin
               port:
                 number: 80
-EOF
 ```
 
-Which will print
+</details>
 
-```
-service/hello-spin created
-ingress.networking.k8s.io/hello-spin created
-```
+Apply the manifests using `kubectl`:
 
-Testing it from the host:
-
-```console
-$ curl http://localhost/
-Hello from Wasm container!
+```bash
+kubectl apply -f <your-manifest-file>.yaml
 ```
 
-### Ingress IP on Windows
+You can now access your application at `http://localhost`.
 
-:::info
-On Windows using `localhost` for the Traefik ingress will not work.
-:::
-
-Instead the ingress IP address should be determined from the Traefik loadbalancer:
-
-```
-C:\>kubectl get service traefik --namespace kube-system --output "jsonpath={.status.loadBalancer.ingress[0].ip}"
-192.168.127.2
-```
-
-The `sslip.io` "magic" DNS service can be used to create a corresponding DNS name for it: `192.168.127.2.sslip.io`. This name should be used instead of `localhost` in the Ingress spec `host` field.
-
-After deploying the deployment, service, and ingress the app should be available under this domain name:
-
-```
-C:\>curl http://192.168.127.2.sslip.io/hello
-Hello world from Spin!
-```
+> **Note on Windows:** On Windows, you will need to use the IP address of the Traefik load balancer instead of `localhost`. You can get the IP address by running `kubectl get service traefik --namespace kube-system --output "jsonpath={.status.loadBalancer.ingress[0].ip}"`.
